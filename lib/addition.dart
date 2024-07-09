@@ -125,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _isListening = false; // Stop listening after answer
         _answered = false; // Allow to re-answer
       });
+      await _speechToText.stop(); // Stop the speech recognition
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
@@ -133,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _isListening = false; // Stop listening after incorrect answer
         _answered = false; // Allow to re-answer
       });
+      await _speechToText.stop(); // Stop the speech recognition
     }
   }
 
