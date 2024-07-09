@@ -11,7 +11,7 @@ class Subtraction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Math Game Sub',
+      title: 'Math Game',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -33,24 +33,23 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _num1;
   late int _num2;
   late int _result;
-  late String _question;
+  String _question = ''; // Provide a default value
   String _answerStatus = '';
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
-    _initFlutterTts();
-    generateQuestion();
+    _initFlutterTts().then((_) {
+      _speakWelcomeMessage().then((_) {
+        generateQuestion();
+      });
+    });
   }
 
   Future _initFlutterTts() async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
-
-    // Speak a starting sentence when the application launches
-    await _flutterTts
-        .speak("Let's start with addition. Tap the screen to answer.");
 
     _flutterTts.setStartHandler(() {
       setState(() {
@@ -76,26 +75,39 @@ class _MyHomePageState extends State<MyHomePage> {
     await _speechToText.initialize();
   }
 
-  void generateQuestion() async {
-    setState(() {
-      _isListening = false;
-      _answered = false;
-    });
-    _num1 = Random().nextInt(10);
-    _num2 = Random().nextInt(10);
-    _result = _num1 - _num2;
-    _question = 'What is $_num1 minus $_num2?';
-    await _speakQuestion();
+  Future _speakWelcomeMessage() async {
+    await _flutterTts.speak("Let's start with subtraction.");
   }
+
+  void generateQuestion() async {
+  setState(() {
+    _isListening = false;
+    _answered = false;
+  });
+
+  _num1 = Random().nextInt(20); // Generate number between 0 and 19
+  _num2 = Random().nextInt(20); // Generate number between 0 and 19
+  _result = _num1 - _num2;
+  
+  // Ensure num1 is always greater than or equal to num2 for clarity
+  if (_num1 < _num2) {
+    int temp = _num1;
+    _num1 = _num2;
+    _num2 = temp;
+    _result = _num1 - _num2;
+  }
+
+  _question = 'What is $_num1 minus $_num2?';
+  await _speakQuestion();
+}
 
   Future _speakQuestion() async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(_question);
 
-    // Allow tapping the screen to answer after speaking the question
     setState(() {
-      _isListening = false; // Not listening initially after asking question
+      _isListening = false;
     });
   }
 
@@ -114,25 +126,29 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         await _speakAnswerStatus('Correct');
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion();
+        setState(() {
+          _isListening = false;
+        });
+        await _speechToText.stop();
+        await Future.delayed(Duration(milliseconds: 500));
       } else {
         setState(() {
           _answerStatus = 'Wrong, please try again.';
         });
         await _speakAnswerStatus('Wrong, please try again.');
+        setState(() {
+          _isListening = false;
+        });
+        await _speechToText.stop();
       }
-      setState(() {
-        _isListening = false; // Stop listening after answer
-        _answered = false; // Allow to re-answer
-      });
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
       });
       setState(() {
-        _isListening = false; // Stop listening after incorrect answer
-        _answered = false; // Allow to re-answer
+        _isListening = false;
       });
+      await _speechToText.stop();
     }
   }
 
@@ -151,11 +167,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _repeatQuestion() async {
+    await _speakQuestion();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('subtraction'),
+        title: Text('Subtraction'),
       ),
       body: Center(
         child: Column(
@@ -182,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(
-              _question != null ? _question : '',
+              _question,
               style: TextStyle(fontSize: 24),
             ),
             Expanded(
@@ -201,6 +221,23 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomLeft: Radius.circular(10),
                       bottomRight: Radius.circular(10),
                     ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: ElevatedButton(
+                onPressed: _repeatQuestion,
+                child: Text(
+                  'Repeat Question',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  minimumSize: Size(double.infinity, 200),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),

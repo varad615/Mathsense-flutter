@@ -40,17 +40,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _initSpeech();
-    _initFlutterTts();
-    generateQuestion();
+    _initFlutterTts().then((_) {
+      _speakWelcomeMessage().then((_) {
+        generateQuestion();
+      });
+    });
   }
 
   Future _initFlutterTts() async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
-
-    // Speak a starting sentence when the application launches
-    await _flutterTts
-        .speak("Let's start with addition. Tap the screen to answer.");
 
     _flutterTts.setStartHandler(() {
       setState(() {
@@ -76,14 +75,22 @@ class _MyHomePageState extends State<MyHomePage> {
     await _speechToText.initialize();
   }
 
+  Future _speakWelcomeMessage() async {
+    await _flutterTts.speak("Let's start with addition.");
+  }
+
   void generateQuestion() async {
     setState(() {
       _isListening = false;
       _answered = false;
     });
-    _num1 = Random().nextInt(10);
-    _num2 = Random().nextInt(10);
-    _result = _num1 + _num2;
+
+    do {
+      _num1 = Random().nextInt(10);
+      _num2 = Random().nextInt(10);
+      _result = _num1 + _num2;
+    } while (_result >= 1 && _result <= 10);
+
     _question = 'What is $_num1 plus $_num2?';
     await _speakQuestion();
   }
@@ -93,9 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(_question);
 
-    // Allow tapping the screen to answer after speaking the question
     setState(() {
-      _isListening = false; // Not listening initially after asking question
+      _isListening = false;
     });
   }
 
@@ -105,41 +111,40 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-void checkAnswer(String spokenText) async {
-  try {
-    int spokenNumber = int.parse(spokenText);
-    if (spokenNumber == _result) {
+  void checkAnswer(String spokenText) async {
+    try {
+      int spokenNumber = int.parse(spokenText);
+      if (spokenNumber == _result) {
+        setState(() {
+          _answerStatus = 'Correct';
+        });
+        await _speakAnswerStatus('Correct');
+        await Future.delayed(Duration(seconds: 1));
+        setState(() {
+          _isListening = false;
+        });
+        await _speechToText.stop();
+        await Future.delayed(Duration(milliseconds: 500));
+      } else {
+        setState(() {
+          _answerStatus = 'Wrong, please try again.';
+        });
+        await _speakAnswerStatus('Wrong, please try again.');
+        setState(() {
+          _isListening = false;
+        });
+        await _speechToText.stop();
+      }
+    } catch (e) {
       setState(() {
-        _answerStatus = 'Correct';
+        _answerStatus = 'Invalid input, please try again.';
       });
-      await _speakAnswerStatus('Correct');
-      await Future.delayed(Duration(seconds: 1));
       setState(() {
-        _isListening = false; // Stop listening
+        _isListening = false;
       });
-      await _speechToText.stop(); // Stop the speech recognition
-      await Future.delayed(Duration(milliseconds: 500)); // Wait for 0.5 seconds
-      generateQuestion(); // Generate a new question
-    } else {
-      setState(() {
-        _answerStatus = 'Wrong, please try again.';
-      });
-      await _speakAnswerStatus('Wrong, please try again.');
-      setState(() {
-        _isListening = false; // Stop listening
-      });
-      await _speechToText.stop(); // Stop the speech recognition
+      await _speechToText.stop();
     }
-  } catch (e) {
-    setState(() {
-      _answerStatus = 'Invalid input, please try again.';
-    });
-    setState(() {
-      _isListening = false; // Stop listening
-    });
-    await _speechToText.stop(); // Stop the speech recognition
   }
-}
 
   void _listen() async {
     if (_isListening) {
@@ -154,6 +159,10 @@ void checkAnswer(String spokenText) async {
         _isListening = true;
       });
     }
+  }
+
+  void _repeatQuestion() async {
+    await _speakQuestion();
   }
 
   @override
@@ -206,6 +215,23 @@ void checkAnswer(String spokenText) async {
                       bottomLeft: Radius.circular(10),
                       bottomRight: Radius.circular(10),
                     ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: ElevatedButton(
+                onPressed: _repeatQuestion,
+                child: Text(
+                  'Repeat Question',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  minimumSize: Size(double.infinity, 200),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
