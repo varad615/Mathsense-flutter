@@ -194,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
+                  backgroundColor: Colors.green,
                   minimumSize: Size(double.infinity, 200),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
