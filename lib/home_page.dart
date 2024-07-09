@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 24, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.red,
+                  backgroundColor: Colors.red,
                   minimumSize: Size(double.infinity, 200),
                   shape: RoundedRectangleBorder(
                     borderRadius:
