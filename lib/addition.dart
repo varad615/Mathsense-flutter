@@ -105,38 +105,41 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void checkAnswer(String spokenText) async {
-    try {
-      int spokenNumber = int.parse(spokenText);
-      if (spokenNumber == _result) {
-        setState(() {
-          _answerStatus = 'Correct';
-        });
-        await _speakAnswerStatus('Correct');
-        await Future.delayed(Duration(seconds: 1));
-        generateQuestion();
-      } else {
-        setState(() {
-          _answerStatus = 'Wrong, please try again.';
-        });
-        await _speakAnswerStatus('Wrong, please try again.');
-      }
+void checkAnswer(String spokenText) async {
+  try {
+    int spokenNumber = int.parse(spokenText);
+    if (spokenNumber == _result) {
       setState(() {
-        _isListening = false; // Stop listening after answer
-        _answered = false; // Allow to re-answer
+        _answerStatus = 'Correct';
+      });
+      await _speakAnswerStatus('Correct');
+      await Future.delayed(Duration(seconds: 1));
+      setState(() {
+        _isListening = false; // Stop listening
       });
       await _speechToText.stop(); // Stop the speech recognition
-    } catch (e) {
+      await Future.delayed(Duration(milliseconds: 500)); // Wait for 0.5 seconds
+      generateQuestion(); // Generate a new question
+    } else {
       setState(() {
-        _answerStatus = 'Invalid input, please try again.';
+        _answerStatus = 'Wrong, please try again.';
       });
+      await _speakAnswerStatus('Wrong, please try again.');
       setState(() {
-        _isListening = false; // Stop listening after incorrect answer
-        _answered = false; // Allow to re-answer
+        _isListening = false; // Stop listening
       });
       await _speechToText.stop(); // Stop the speech recognition
     }
+  } catch (e) {
+    setState(() {
+      _answerStatus = 'Invalid input, please try again.';
+    });
+    setState(() {
+      _isListening = false; // Stop listening
+    });
+    await _speechToText.stop(); // Stop the speech recognition
   }
+}
 
   void _listen() async {
     if (_isListening) {
