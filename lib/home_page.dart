@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> {
         if (_wordsSpoken.toLowerCase().contains("addition")) {
           _aboutPageOpened =
               true; // Set the flag to true to prevent multiple navigations
+          _stopListening();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Addition()),
@@ -63,6 +64,7 @@ class _HomePageState extends State<HomePage> {
         } else if (_wordsSpoken.toLowerCase().contains("subtraction")) {
           _aboutPageOpened =
               true; // Set the flag to true to prevent multiple navigations
+          _stopListening();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Subtraction()),
