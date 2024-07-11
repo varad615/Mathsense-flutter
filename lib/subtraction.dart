@@ -11,6 +11,7 @@ class Subtraction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Math Game',
       theme: ThemeData(
         primarySwatch: Colors.blue,

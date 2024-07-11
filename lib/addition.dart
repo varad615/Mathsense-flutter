@@ -11,6 +11,7 @@ class Addition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Math Game',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -33,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _num1;
   late int _num2;
   late int _result;
-  late String _question;
+  String _question = ''; // Initialize _question with an empty string
   String _answerStatus = '';
 
   @override
@@ -196,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(
-              _question != null ? _question : '',
+              _question.isNotEmpty ? _question : 'Press "Next Question" to start.',
               style: TextStyle(fontSize: 24),
             ),
             Expanded(
