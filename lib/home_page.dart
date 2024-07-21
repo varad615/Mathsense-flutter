@@ -81,11 +81,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.white,
         title: Text(
           'Mathsense',
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
       ),
@@ -93,22 +93,26 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Expanded(
-              child: ElevatedButton(
-                onPressed: _speechToText.isListening
-                    ? _stopListening
-                    : _startListening,
-                child: Text(
-                  _speechToText.isListening
-                      ? "Stop Listening"
-                      : "Tap to Start Listening",
-                  style: TextStyle(fontSize: 24, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(2), // Set the radius to 2
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _speechToText.isListening
+                      ? _stopListening
+                      : _startListening,
+                  child: Text(
+                    _speechToText.isListening
+                        ? "Stop Listening"
+                        : "Tap to Start Listening",
+                    style: TextStyle(fontSize: 24, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: BorderSide(width: 5, color: Colors.black),
+                    minimumSize: Size(double.infinity, 200),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Set the radius to 2
+                    ),
                   ),
                 ),
               ),
@@ -116,6 +120,10 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      // floatingActionButton: FloatingActionButton(onPressed: () {
+      //   Navigator.push(
+      //       context, MaterialPageRoute(builder: (context) => Subtraction()));
+      // }),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
@@ -81,26 +82,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void generateQuestion() async {
-  setState(() {
-    _isListening = false;
-    _answered = false;
-  });
+    setState(() {
+      _isListening = false;
+      _answered = false;
+    });
 
-  _num1 = Random().nextInt(20); // Generate number between 0 and 19
-  _num2 = Random().nextInt(20); // Generate number between 0 and 19
-  _result = _num1 - _num2;
-  
-  // Ensure num1 is always greater than or equal to num2 for clarity
-  if (_num1 < _num2) {
-    int temp = _num1;
-    _num1 = _num2;
-    _num2 = temp;
+    _num1 = Random().nextInt(20); // Generate number between 0 and 19
+    _num2 = Random().nextInt(20); // Generate number between 0 and 19
     _result = _num1 - _num2;
-  }
 
-  _question = 'What is $_num1 minus $_num2?';
-  await _speakQuestion();
-}
+    // Ensure num1 is always greater than or equal to num2 for clarity
+    if (_num1 < _num2) {
+      int temp = _num1;
+      _num1 = _num2;
+      _num2 = temp;
+      _result = _num1 - _num2;
+    }
+
+    _question = 'What is $_num1 minus $_num2?';
+    await _speakQuestion();
+  }
 
   Future _speakQuestion() async {
     await _flutterTts.setLanguage("en-US");
@@ -176,6 +177,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const HomePage()));
+          },
+        ),
         title: Text('Subtraction'),
       ),
       body: Center(
@@ -184,19 +192,21 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _isListening ? null : generateQuestion,
-                child: Text(
-                  'Next Question',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _isListening ? null : generateQuestion,
+                  child: Text(
+                    'Next Question',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 200),
+                    side: BorderSide(width: 5, color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Set the radius to 2
                     ),
                   ),
                 ),
@@ -208,19 +218,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _listen,
-                child: Text(
-                  'Answer',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _listen,
+                  child: Text(
+                    'Answer',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 200),
+                    side: BorderSide(width: 5, color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Set the radius to 2
                     ),
                   ),
                 ),
@@ -228,17 +240,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _repeatQuestion,
-                child: Text(
-                  'Repeat Question',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _repeatQuestion,
+                  child: Text(
+                    'Repeat Question',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 200),
+                    side: BorderSide(width: 5, color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),
