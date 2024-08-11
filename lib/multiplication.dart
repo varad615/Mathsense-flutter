@@ -73,8 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _repeatInstruction() async {
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
+
 
   Future _initSpeech() async {
     await _speechToText.initialize();
@@ -84,23 +86,26 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.speak("Let's start with multiplication.");
     await _flutterTts.awaitSpeakCompletion(true);
 
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(  "Tap the top of the screen to hear the question and the bottom button to answer.");
     await _flutterTts.awaitSpeakCompletion(true);
 
     generateQuestion(); // Now generate the question after instructions
   }
 
-  void generateQuestion() async {
+  void generateQuestion() {
     setState(() {
       _isListening = false;
       _answered = false;
     });
 
-    _num1 = Random().nextInt(10) + 1; // Generate number between 1 and 10
-    _num2 = Random().nextInt(10) + 1; // Generate number between 1 and 10
-    _result = _num1 * _num2;
+    // Generate numbers ensuring the result is always greater than 9
+    do {
+      _num1 = Random().nextInt(10) + 1; // Generate number between 1 and 10
+      _num2 = Random().nextInt(10) + 1; // Generate number between 1 and 10
+      _result = _num1 * _num2;
+    } while (_result <= 9); // Repeat until the result is greater than 9
 
-    _question = 'What is $_num1 times $_num2?';
+    _question = 'What is $_num1 multiplied by $_num2?'; // Set the question
   }
 
   Future _speakQuestion() async {

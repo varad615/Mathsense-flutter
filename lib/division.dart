@@ -73,7 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _repeatInstruction() async {
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   Future _initSpeech() async {
@@ -84,25 +85,32 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.speak("Let's start with division.");
     await _flutterTts.awaitSpeakCompletion(true);
 
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
     await _flutterTts.awaitSpeakCompletion(true);
 
     generateQuestion(); // Now generate the question after instructions
   }
 
-  void generateQuestion() async {
+  void generateQuestion() {
     setState(() {
       _isListening = false;
       _answered = false;
     });
 
-    // Generate two random numbers ensuring num1 is divisible by num2
-    _num2 = Random().nextInt(9) + 1; // Ensure num2 is not zero
-    _num1 =
-        _num2 * (Random().nextInt(10) + 1); // Ensure num1 is a multiple of num2
+    // Ensure num1 is greater than 90 to guarantee result is greater than 9
+    _num1 = Random().nextInt(91) + 10; // Generates num1 between 10 and 100
+    _num2 = Random().nextInt(9) + 1; // Generates num2 between 1 and 9
     _result = _num1 ~/ _num2; // Use integer division
 
-    _question = 'What is $_num1 divided by $_num2?';
+    // Ensure the result is at least 9
+    while (_result < 9) {
+      _num1 = Random().nextInt(91) + 10; // Generate new num1
+      _num2 = Random().nextInt(9) + 1; // Generate new num2
+      _result = _num1 ~/ _num2; // Calculate new result
+    }
+
+    _question = 'What is $_num1 divided by $_num2?'; // Set the question
   }
 
   Future _speakQuestion() async {

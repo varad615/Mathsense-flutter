@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:mathsense/addition.dart';
 import 'package:mathsense/home_page.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -34,6 +33,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return GestureDetector(
       onTap: () {
         // Navigate to the homepage when the screen is tapped
@@ -48,9 +50,14 @@ class _WelcomePageState extends State<WelcomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/logo2.png', // Update with your image path
-                fit: BoxFit.contain,
+              // Center the image
+              Center(
+                child: Image.asset(
+                  'assets/images/logo2.png', // Update with your image path
+                  height: screenHeight *
+                      0.5, // Set height as 50% of the screen height
+                  fit: BoxFit.contain,
+                ),
               ),
               SizedBox(height: 16.0), // Space between the image and the text
               Text(

@@ -73,7 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _repeatInstruction() async {
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   Future _initSpeech() async {
@@ -84,31 +85,28 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.speak("Let's start with subtraction.");
     await _flutterTts.awaitSpeakCompletion(true);
 
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
     await _flutterTts.awaitSpeakCompletion(true);
 
-    generateQuestion(); // Now generate the question after instructions
+    generateQuestion(); // Generate the question after instructions
   }
 
-  void generateQuestion() async {
+  void generateQuestion() {
     setState(() {
       _isListening = false;
       _answered = false;
     });
 
-    _num1 = Random().nextInt(20); // Generate number between 0 and 19
-    _num2 = Random().nextInt(20); // Generate number between 0 and 19
+    // Generate a result that is at least 9
+    int result = Random().nextInt(11) + 9; // Generate a result between 9 and 19
+    _num2 = Random()
+        .nextInt(result - 8); // Generate num2 between 0 and (result - 9)
+    _num1 = result; // Set num1 to the generated result
 
-    // Ensure num1 is always greater than or equal to num2 for clarity
-    if (_num1 < _num2) {
-      int temp = _num1;
-      _num1 = _num2;
-      _num2 = temp;
-    }
+    _result = _num1 - _num2; // Calculate the actual subtraction result
 
-    _result = _num1 - _num2;
-
-    _question = 'What is $_num1 minus $_num2?';
+    _question = 'What is $_num1 minus $_num2?'; // Set the question
   }
 
   Future _speakQuestion() async {
@@ -185,7 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
             GestureDetector(
               onTap: _isListening
                   ? null
-                  : _speakQuestion, // Call _speakQuestion on tap
+                  : () {
+                      _speakQuestion(); // Call _speakQuestion on tap
+                    },
               child: Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.height * 0.5,

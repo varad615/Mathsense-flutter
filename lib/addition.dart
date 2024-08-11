@@ -73,7 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _repeatInstruction() async {
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   Future _initSpeech() async {
@@ -84,7 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.speak("Let's start with addition.");
     await _flutterTts.awaitSpeakCompletion(true);
 
-    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
     await _flutterTts.awaitSpeakCompletion(true);
 
     generateQuestion(); // Now generate the question after instructions
