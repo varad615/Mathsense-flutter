@@ -6,10 +6,10 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
 
 void main() {
-  runApp(Addition());
+  runApp(Division());
 }
 
-class Addition extends StatelessWidget {
+class Division extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _speakWelcomeMessage() async {
-    await _flutterTts.speak("Let's start with addition.");
+    await _flutterTts.speak("Let's start with division.");
     await _flutterTts.awaitSpeakCompletion(true);
 
     await _flutterTts.speak("Tap on the top of the screen to answer.");
@@ -96,13 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _answered = false;
     });
 
-    do {
-      _num1 = Random().nextInt(10);
-      _num2 = Random().nextInt(10);
-      _result = _num1 + _num2;
-    } while (_result >= 1 && _result <= 10);
+    // Generate two random numbers ensuring num1 is divisible by num2
+    _num2 = Random().nextInt(9) + 1; // Ensure num2 is not zero
+    _num1 =
+        _num2 * (Random().nextInt(10) + 1); // Ensure num1 is a multiple of num2
+    _result = _num1 ~/ _num2; // Use integer division
 
-    _question = 'What is $_num1 plus $_num2?';
+    _question = 'What is $_num1 divided by $_num2?';
   }
 
   Future _speakQuestion() async {

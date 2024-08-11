@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -35,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _num1;
   late int _num2;
   late int _result;
-  String _question = ''; // Provide a default value
+  String _question = ''; // Initialize _question with an empty string
   String _answerStatus = '';
 
   @override
@@ -43,9 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _initSpeech();
     _initFlutterTts().then((_) {
-      _speakWelcomeMessage().then((_) {
-        generateQuestion();
-      });
+      _speakWelcomeMessage();
     });
   }
 
@@ -73,12 +72,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future _repeatInstruction() async {
+    await _flutterTts.speak("Tap on the top of the screen to answer.");
+  }
+
   Future _initSpeech() async {
     await _speechToText.initialize();
   }
 
   Future _speakWelcomeMessage() async {
     await _flutterTts.speak("Let's start with subtraction.");
+    await _flutterTts.awaitSpeakCompletion(true);
+
+    await _flutterTts.speak("Tap on the top of the screen to answer.");
+    await _flutterTts.awaitSpeakCompletion(true);
+
+    generateQuestion(); // Now generate the question after instructions
   }
 
   void generateQuestion() async {
@@ -89,23 +98,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _num1 = Random().nextInt(20); // Generate number between 0 and 19
     _num2 = Random().nextInt(20); // Generate number between 0 and 19
-    _result = _num1 - _num2;
 
     // Ensure num1 is always greater than or equal to num2 for clarity
     if (_num1 < _num2) {
       int temp = _num1;
       _num1 = _num2;
       _num2 = temp;
-      _result = _num1 - _num2;
     }
 
+    _result = _num1 - _num2;
+
     _question = 'What is $_num1 minus $_num2?';
-    await _speakQuestion();
   }
 
   Future _speakQuestion() async {
-    await _flutterTts.setLanguage("en-US");
-    await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(_question);
 
     setState(() {
@@ -114,9 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _speakAnswerStatus(String message) async {
-    if (message == 'Correct' || message == 'Wrong, please try again.') {
-      await _flutterTts.speak(message);
-    }
+    await _flutterTts.speak(message);
   }
 
   void checkAnswer(String spokenText) async {
@@ -128,21 +132,19 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         await _speakAnswerStatus('Correct');
         await Future.delayed(Duration(seconds: 1));
-        setState(() {
-          _isListening = false;
-        });
-        await _speechToText.stop();
-        await Future.delayed(Duration(milliseconds: 500));
+        generateQuestion(); // Generate new question after correct answer
       } else {
         setState(() {
-          _answerStatus = 'Wrong, please try again.';
+          _answerStatus = 'Wrong, the correct answer is $_result';
         });
-        await _speakAnswerStatus('Wrong, please try again.');
-        setState(() {
-          _isListening = false;
-        });
-        await _speechToText.stop();
+        await _speakAnswerStatus('Wrong, the correct answer is $_result');
+        await Future.delayed(Duration(seconds: 1));
+        generateQuestion(); // Generate new question after incorrect answer
       }
+      await _speechToText.stop();
+      setState(() {
+        _isListening = false;
+      });
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
@@ -176,85 +178,110 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const HomePage()));
-          },
-        ),
-        title: Text('Subtraction'),
-      ),
-      body: Center(
+      body: SafeArea(
+        top: true,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _isListening ? null : generateQuestion,
+            GestureDetector(
+              onTap: _isListening
+                  ? null
+                  : _speakQuestion, // Call _speakQuestion on tap
+              child: Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.5,
+                color: Colors.black,
+                child: Center(
                   child: Text(
-                    'Next Question',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 200),
-                    side: BorderSide(width: 5, color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Set the radius to 2
-                    ),
+                    _question.isNotEmpty
+                        ? _question
+                        : 'Tap to start the next question.',
+                    style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.white), // White text for contrast
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-            Text(
-              _question,
-              style: TextStyle(fontSize: 24),
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _listen,
-                  child: Text(
-                    'Answer',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 200),
-                    side: BorderSide(width: 5, color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Set the radius to 2
-                    ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _repeatInstruction,
+                child: Text(
+                  'Repeat Instruction',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _repeatQuestion,
-                  child: Text(
-                    'Repeat Question',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _listen,
+                child: Text(
+                  'Answer',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 200),
-                    side: BorderSide(width: 5, color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomePage()));
+                },
+                child: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FeedbackPage()));
+                },
+                child: Text(
+                  'Feedback',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
