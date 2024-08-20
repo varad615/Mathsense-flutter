@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                     child: Text(
                       _speechToText.isListening
                           ? "Stop Listening"
-                          : "Tap to Start Listening",
+                          : "Tap to Choose Quize",
                       style: TextStyle(fontSize: 24, color: Colors.black),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -144,6 +144,26 @@ class _HomePageState extends State<HomePage> {
                         borderRadius:
                             BorderRadius.circular(10), // Set the radius to 2
                       ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _isSpeaking
+                      ? null // Disable the button while TTS is speaking
+                      : _speakInitialMessage,
+                  child: Text(
+                    "Repeat Instructions",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    side: BorderSide(width: 2, color: Colors.white),
+                    minimumSize: Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),

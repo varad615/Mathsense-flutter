@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mathsense/home_page.dart';
 import 'package:mathsense/welcome.dart';
 
 void main() {
