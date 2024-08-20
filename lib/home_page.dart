@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                     child: Text(
                       _speechToText.isListening
                           ? "Stop Listening"
-                          : "Tap to Choose Quize",
+                          : "Tap to Choose Quiz",
                       style: TextStyle(fontSize: 24, color: Colors.black),
                     ),
                     style: ElevatedButton.styleFrom(
