@@ -92,9 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
     generateQuestion(); // Now generate the question after instructions
   }
 
-  void generateQuestion() async {
+  Future<void> generateQuestion() async {
     setState(() {
-      _isListening = false;
       _answered = false;
     });
 
@@ -105,6 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
     } while (_result >= 1 && _result <= 10);
 
     _question = 'What is $_num1 plus $_num2?';
+    setState(() {
+      _question = _question;
+    });
+    await _speakQuestion(); // Speak the new question
   }
 
   Future _speakQuestion() async {
@@ -119,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await _flutterTts.speak(message);
   }
 
-  void checkAnswer(String spokenText) async {
+  Future<void> checkAnswer(String spokenText) async {
     try {
       int spokenNumber = int.parse(spokenText);
       if (spokenNumber == _result) {
@@ -127,33 +130,24 @@ class _MyHomePageState extends State<MyHomePage> {
           _answerStatus = 'Correct';
         });
         await _speakAnswerStatus('Correct');
-        await _speechToText.stop(); // Stop speech recognition
-        setState(() {
-          _isListening = false;
-        });
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after correct answer
+        await generateQuestion(); // Generate new question after correct answer
       } else {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
         await _speakAnswerStatus('Wrong, the correct answer is $_result');
-        await _speechToText.stop(); // Stop speech recognition
-        setState(() {
-          _isListening = false;
-        });
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after incorrect answer
+        await generateQuestion(); // Generate new question after incorrect answer
       }
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
       });
-      await _speechToText.stop(); // Stop speech recognition
-      setState(() {
-        _isListening = false;
-      });
     }
+    setState(() {
+      _isListening = false;
+    });
   }
 
   void _listen() async {
@@ -163,10 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _isListening = false;
       });
     } else {
-      await _speechToText.listen(
-          onResult: (val) => checkAnswer(val.recognizedWords));
       setState(() {
         _isListening = true;
+      });
+      await _speechToText.listen(onResult: (val) async {
+        await checkAnswer(val.recognizedWords);
       });
     }
   }
