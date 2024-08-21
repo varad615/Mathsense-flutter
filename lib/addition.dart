@@ -132,8 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
         await _flutterTts.speak("Correct");
         await _flutterTts.stop();
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after correct answer
-      } else {
+      }
+      if (spokenNumber != _result) {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
@@ -143,12 +143,12 @@ class _MyHomePageState extends State<MyHomePage> {
         await _flutterTts.speak("Wrong, the correct answer is $_result");
         await _flutterTts.stop();
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after incorrect answer
       }
       await _speechToText.stop();
       setState(() {
         _isListening = false;
       });
+      generateQuestion(); // Generate new question after answer
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
