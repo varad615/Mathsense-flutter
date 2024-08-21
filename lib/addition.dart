@@ -123,24 +123,15 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       int spokenNumber = int.parse(spokenText);
       if (spokenNumber == _result) {
-        setState(() {
-          _answerStatus = 'Correct';
-        });
         await _speakAnswerStatus('Correct');
-        await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question
-      } else {
         setState(() {
-          _answerStatus = 'Wrong, the correct answer is $_result';
+          _isListening = false;
         });
+      } else {
         await _speakAnswerStatus('Wrong, the correct answer is $_result');
         await Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question
       }
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
