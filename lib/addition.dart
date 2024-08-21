@@ -120,31 +120,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void checkAnswer(String spokenText) async {
-    try {
-      int spokenNumber = int.parse(spokenText);
-      String answerStatus;
-      if (spokenNumber == _result) {
-        answerStatus = 'Correct';
-      } else {
-        answerStatus = 'Wrong, the correct answer is $_result';
-      }
+    if (int.tryParse(spokenText) == _result) {
       setState(() {
-        _answerStatus = answerStatus;
+        _answerStatus = 'Correct';
       });
-      await _speakAnswerStatus(answerStatus); // Only call TTS once
-      generateQuestion(); // Generate new question
-    } on FormatException {
+      await _speakAnswerStatus('Correct');
+      generateQuestion(); // Generate new question only if answer is correct
+    } else {
       setState(() {
-        _answerStatus = 'Invalid input, please try again.';
+        _answerStatus = 'Wrong, the correct answer is $_result';
       });
-      await _speakAnswerStatus(
-          'Invalid input, please try again.'); // Only call TTS once
-    } finally {
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
+      await _speakAnswerStatus('Wrong, the correct answer is $_result');
     }
+    await _speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
   }
 
   void _listen() async {
