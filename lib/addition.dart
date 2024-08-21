@@ -122,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void checkAnswer(String spokenText) async {
     try {
       int spokenNumber = int.parse(spokenText);
+      bool isCorrect = false;
       if (spokenNumber == _result) {
         setState(() {
           _answerStatus = 'Correct';
@@ -132,8 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
         await _flutterTts.speak("Correct");
         await _flutterTts.stop();
         await Future.delayed(Duration(seconds: 1));
+        isCorrect = true;
       }
-      if (spokenNumber != _result) {
+      if (spokenNumber != _result && !isCorrect) {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
