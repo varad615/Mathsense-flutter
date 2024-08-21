@@ -3,6 +3,7 @@ import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 
 void main() {
@@ -120,22 +121,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void checkAnswer(String spokenText) async {
-    if (int.tryParse(spokenText) == _result) {
+    try {
+      int spokenNumber = int.parse(spokenText);
+      if (spokenNumber == _result) {
+        setState(() {
+          _answerStatus = 'Correct';
+        });
+        await playCorrectSound(); // Play a sound when the answer is correct
+        await Future.delayed(Duration(seconds: 1));
+        generateQuestion(); // Generate new question after correct answer
+      } else {
+        setState(() {
+          _answerStatus = 'Wrong, the correct answer is $_result';
+        });
+        await _speakAnswerStatus('Wrong, the correct answer is $_result');
+        await Future.delayed(Duration(seconds: 1));
+        generateQuestion(); // Generate new question after incorrect answer
+      }
+      await _speechToText.stop();
       setState(() {
-        _answerStatus = 'Correct';
+        _isListening = false;
       });
-      await _speakAnswerStatus('Correct');
-      generateQuestion(); // Generate new question only if answer is correct
-    } else {
+    } catch (e) {
       setState(() {
-        _answerStatus = 'Wrong, the correct answer is $_result';
+        _answerStatus = 'Invalid input, please try again.';
       });
-      await _speakAnswerStatus('Wrong, the correct answer is $_result');
+      setState(() {
+        _isListening = false;
+      });
+      await _speechToText.stop();
     }
-    await _speechToText.stop();
-    setState(() {
-      _isListening = false;
-    });
+  }
+
+// Add this function to play a sound when the answer is correct
+  Future<void> playCorrectSound() async {
+    await SystemSound.play(
+        SystemSoundType.alert); // Play a default system sound
   }
 
   void _listen() async {
