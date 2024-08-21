@@ -3,7 +3,6 @@ import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter/services.dart';
 import 'dart:math';
 
 void main() {
@@ -127,7 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _answerStatus = 'Correct';
         });
-        await playCorrectSound(); // Play a sound when the answer is correct
+        await _flutterTts.setLanguage("en-US");
+        await _flutterTts.setPitch(1.0);
+        await _flutterTts.speak("Correct");
         await Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question after correct answer
       } else {
@@ -151,12 +152,6 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       await _speechToText.stop();
     }
-  }
-
-// Add this function to play a sound when the answer is correct
-  Future<void> playCorrectSound() async {
-    await SystemSound.play(
-        SystemSoundType.alert); // Play a default system sound
   }
 
   void _listen() async {
