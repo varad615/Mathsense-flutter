@@ -123,23 +123,36 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       int spokenNumber = int.parse(spokenText);
       if (spokenNumber == _result) {
+        setState(() {
+          _answerStatus = 'Correct';
+        });
         await _speakAnswerStatus('Correct');
+        await _speechToText.stop(); // Stop speech recognition
         setState(() {
           _isListening = false;
         });
-      } else {
-        await _speakAnswerStatus('Wrong, the correct answer is $_result');
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question
+        generateQuestion(); // Generate new question after correct answer
+      } else {
+        setState(() {
+          _answerStatus = 'Wrong, the correct answer is $_result';
+        });
+        await _speakAnswerStatus('Wrong, the correct answer is $_result');
+        await _speechToText.stop(); // Stop speech recognition
+        setState(() {
+          _isListening = false;
+        });
+        await Future.delayed(Duration(seconds: 1));
+        generateQuestion(); // Generate new question after incorrect answer
       }
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
       });
+      await _speechToText.stop(); // Stop speech recognition
       setState(() {
         _isListening = false;
       });
-      await _speechToText.stop();
     }
   }
 
