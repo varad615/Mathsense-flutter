@@ -127,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _answerStatus = 'Correct';
         });
         await _flutterTts.setLanguage("en-US");
+        await Future.delayed(Duration(milliseconds: 100));
         await _flutterTts.setPitch(1.0);
         await _flutterTts.speak("Correct");
         await _flutterTts.stop();
@@ -136,7 +137,11 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
-        await _speakAnswerStatus('Wrong, the correct answer is $_result');
+        await _flutterTts.setLanguage("en-US");
+        await Future.delayed(Duration(milliseconds: 100));
+        await _flutterTts.setPitch(1.0);
+        await _flutterTts.speak("Wrong, the correct answer is $_result");
+        await _flutterTts.stop();
         await Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question after incorrect answer
       }
