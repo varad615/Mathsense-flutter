@@ -129,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
         await _flutterTts.setLanguage("en-US");
         await _flutterTts.setPitch(1.0);
         await _flutterTts.speak("Correct");
+        await _flutterTts.stop();
         await Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question after correct answer
       } else {
