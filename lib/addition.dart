@@ -128,14 +128,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         await _speakAnswerStatus('Correct');
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after correct answer
+        generateQuestion(); // Generate new question
       } else {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
         await _speakAnswerStatus('Wrong, the correct answer is $_result');
         await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after incorrect answer
+        generateQuestion(); // Generate new question
       }
       await _speechToText.stop();
       setState(() {
