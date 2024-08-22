@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
@@ -170,7 +171,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Addition'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const HomePage()));
+          },
+        ),
+        title: const Text('Addition'),
       ),
       body: Center(
         child: Column(
@@ -178,43 +186,49 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _isListening ? null : generateQuestion,
-                child: Text(
-                  'Next Question',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _isListening ? null : generateQuestion,
+                  child: Text(
+                    'Next Question',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: BorderSide(width: 5, color: Colors.black),
+                    minimumSize: Size(double.infinity, 200),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Set the radius to 2
                     ),
                   ),
                 ),
               ),
             ),
             Text(
-              _question.isNotEmpty ? _question : 'Press "Next Question" to start.',
+              _question.isNotEmpty
+                  ? _question
+                  : 'Press "Next Question" to start.',
               style: TextStyle(fontSize: 24),
             ),
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _listen,
-                child: Text(
-                  'Answer',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _listen,
+                  child: Text(
+                    'Answer',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 200),
+                    side: BorderSide(width: 5, color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Set the radius to 2
                     ),
                   ),
                 ),
@@ -222,17 +236,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: _repeatQuestion,
-                child: Text(
-                  'Repeat Question',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  minimumSize: Size(double.infinity, 200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _repeatQuestion,
+                  child: Text(
+                    'Repeat Question',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 200),
+                    side: BorderSide(width: 5, color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),
