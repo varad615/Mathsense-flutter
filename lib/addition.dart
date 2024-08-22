@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mathsense/feedback.dart';
-import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
@@ -13,7 +11,6 @@ class Addition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Math Game',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -36,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _num1;
   late int _num2;
   late int _result;
-  String _question = ''; // Initialize _question with an empty string
+  late String _question = ''; // Initialize with an empty string
   String _answerStatus = '';
 
   @override
@@ -44,7 +41,9 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _initSpeech();
     _initFlutterTts().then((_) {
-      _speakWelcomeMessage();
+      _speakWelcomeMessage().then((_) {
+        generateQuestion();
+      });
     });
   }
 
@@ -72,24 +71,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future _repeatInstruction() async {
-    await _flutterTts.speak(
-        "Tap the top of the screen to hear the question and the bottom button to answer.");
-  }
-
   Future _initSpeech() async {
     await _speechToText.initialize();
   }
 
   Future _speakWelcomeMessage() async {
     await _flutterTts.speak("Let's start with addition.");
-    await _flutterTts.awaitSpeakCompletion(true);
-
-    await _flutterTts.speak(
-        "Tap the top of the screen to hear the question and the bottom button to answer.");
-    await _flutterTts.awaitSpeakCompletion(true);
-
-    generateQuestion(); // Now generate the question after instructions
   }
 
   void generateQuestion() async {
@@ -105,9 +92,12 @@ class _MyHomePageState extends State<MyHomePage> {
     } while (_result >= 1 && _result <= 10);
 
     _question = 'What is $_num1 plus $_num2?';
+    await _speakQuestion();
   }
 
   Future _speakQuestion() async {
+    await _flutterTts.setLanguage("en-US");
+    await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(_question);
 
     setState(() {
@@ -116,41 +106,35 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _speakAnswerStatus(String message) async {
-    await _flutterTts.speak(message);
+    if (message == 'Correct' || message == 'Wrong, please try again.') {
+      await _flutterTts.speak(message);
+    }
   }
 
   void checkAnswer(String spokenText) async {
     try {
       int spokenNumber = int.parse(spokenText);
-      bool isCorrect = false;
       if (spokenNumber == _result) {
         setState(() {
           _answerStatus = 'Correct';
         });
-        await _flutterTts.setLanguage("en-US");
-        await Future.delayed(Duration(milliseconds: 100));
-        await _flutterTts.setPitch(1.0);
-        await _flutterTts.speak("Correct");
-        await _flutterTts.stop();
+        await _speakAnswerStatus('Correct');
         await Future.delayed(Duration(seconds: 1));
-        isCorrect = true;
-      }
-      if (spokenNumber != _result && !isCorrect) {
         setState(() {
-          _answerStatus = 'Wrong, the correct answer is $_result';
+          _isListening = false;
         });
-        await _flutterTts.setLanguage("en-US");
-        await Future.delayed(Duration(milliseconds: 100));
-        await _flutterTts.setPitch(1.0);
-        await _flutterTts.speak("Wrong, the correct answer is $_result");
-        await _flutterTts.stop();
-        await Future.delayed(Duration(seconds: 1));
+        await _speechToText.stop();
+        await Future.delayed(Duration(milliseconds: 500));
+      } else {
+        setState(() {
+          _answerStatus = 'Wrong, please try again.';
+        });
+        await _speakAnswerStatus('Wrong, please try again.');
+        setState(() {
+          _isListening = false;
+        });
+        await _speechToText.stop();
       }
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
-      generateQuestion(); // Generate new question after answer
     } catch (e) {
       setState(() {
         _answerStatus = 'Invalid input, please try again.';
@@ -184,52 +168,39 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        top: true,
+      appBar: AppBar(
+        title: Text('Addition'),
+      ),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            GestureDetector(
-              onTap: _isListening
-                  ? null
-                  : _speakQuestion, // Call _speakQuestion on tap
-              child: Container(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.5,
-                color: Colors.black,
-                child: Center(
-                  child: Text(
-                    _question.isNotEmpty
-                        ? _question
-                        : 'Tap to start the next question.',
-                    style: TextStyle(
-                        fontSize: 28,
-                        color: Colors.white), // White text for contrast
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-            Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            Expanded(
+              flex: 1,
               child: ElevatedButton(
-                onPressed: _repeatInstruction,
+                onPressed: _isListening ? null : generateQuestion,
                 child: Text(
-                  'Repeat Instruction',
+                  'Next Question',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor: Colors.blue,
+                  minimumSize: Size(double.infinity, 200),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            Text(
+              _question != null ? _question : '',
+              style: TextStyle(fontSize: 24),
+            ),
+            Expanded(
+              flex: 1,
               child: ElevatedButton(
                 onPressed: _listen,
                 child: Text(
@@ -237,55 +208,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor: Colors.green,
+                  minimumSize: Size(double.infinity, 200),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            Expanded(
+              flex: 1,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HomePage()));
-                },
+                onPressed: _repeatQuestion,
                 child: Text(
-                  'Home',
+                  'Repeat Question',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FeedbackPage()));
-                },
-                child: Text(
-                  'Feedback',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor: Colors.orange,
+                  minimumSize: Size(double.infinity, 200),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
