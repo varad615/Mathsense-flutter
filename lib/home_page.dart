@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
           _stopListening();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Addition()),
+            MaterialPageRoute(builder: (context) => AdditionPage()),
           ).then((_) {
             _aboutPageOpened = false;
           });

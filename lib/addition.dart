@@ -1,269 +1,152 @@
-import 'package:flutter/material.dart';
-import 'package:mathsense/home_page.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
-  runApp(Addition());
+  runApp(AdditionApp());
 }
 
-class Addition extends StatelessWidget {
+class AdditionApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Math Game',
+      title: 'Addition Solver',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: AdditionPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class AdditionPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _AdditionPageState createState() => _AdditionPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final SpeechToText _speechToText = SpeechToText();
-  final FlutterTts _flutterTts = FlutterTts();
+class _AdditionPageState extends State<AdditionPage> {
+  late stt.SpeechToText _speech;
+  FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
-  bool _answered = false;
-  late int _num1;
-  late int _num2;
-  late int _result;
-  String _question = ''; // Initialize _question with an empty string
-  String _answerStatus = '';
+  String _text = "";
+  MathQuestion? _currentQuestion;
+  bool _processingAnswer = false;
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
-    _initFlutterTts().then((_) {
-      _speakWelcomeMessage().then((_) {
-        generateQuestion();
-      });
-    });
+    _speech = stt.SpeechToText();
+    _welcomeAndLoadQuestion();
   }
 
-  Future _initFlutterTts() async {
-    await _flutterTts.setLanguage("en-US");
-    await _flutterTts.setPitch(1.0);
-
-    _flutterTts.setStartHandler(() {
-      setState(() {
-        _isListening = true;
-      });
-    });
-
-    _flutterTts.setCompletionHandler(() {
-      setState(() {
-        _isListening = false;
-      });
-    });
-
-    _flutterTts.setErrorHandler((err) {
-      setState(() {
-        print("error occurred: $err");
-        _isListening = false;
-      });
-    });
+  void _welcomeAndLoadQuestion() async {
+    _speak("Welcome to Addition Solver!");
+    _generateNewQuestion();
   }
 
-  Future _initSpeech() async {
-    await _speechToText.initialize();
-  }
-
-  Future _speakWelcomeMessage() async {
-    await _flutterTts.speak("Let's start with addition.");
-  }
-
-  void generateQuestion() async {
+  void _generateNewQuestion() {
     setState(() {
-      _isListening = false;
-      _answered = false;
+      _currentQuestion = generateAdditionQuestion();
+      _text = ""; // Clear previous answer text
+      _processingAnswer = false; // Reset answer processing flag
     });
-
-    do {
-      _num1 = Random().nextInt(10);
-      _num2 = Random().nextInt(10);
-      _result = _num1 + _num2;
-    } while (_result >= 1 && _result <= 10);
-
-    _question = 'What is $_num1 plus $_num2?';
-    await _speakQuestion();
+    _speak(_currentQuestion.toString());
   }
 
-  Future _speakQuestion() async {
-    await _flutterTts.setLanguage("en-US");
-    await _flutterTts.setPitch(1.0);
-    await _flutterTts.speak(_question);
-
-    setState(() {
-      _isListening = false;
-    });
-  }
-
-  Future _speakAnswerStatus(String message) async {
-    if (message == 'Correct' || message == 'Wrong, please try again.') {
-      await _flutterTts.speak(message);
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (val) {
+          if (val.hasConfidenceRating &&
+              val.confidence > 0.75 &&
+              !_processingAnswer) {
+            setState(() {
+              _text = val.recognizedWords;
+              _checkAnswer(int.tryParse(_text) ?? 0);
+            });
+          }
+        },
+        listenFor: Duration(seconds: 10), // Listen for a longer duration
+        pauseFor: Duration(seconds: 5), // Pause to allow user to respond
+        cancelOnError: true,
+        partialResults: false, // Only process final results
+      );
     }
   }
 
-  void checkAnswer(String spokenText) async {
-    try {
-      int spokenNumber = int.parse(spokenText);
-      if (spokenNumber == _result) {
-        setState(() {
-          _answerStatus = 'Correct';
-        });
-        await _speakAnswerStatus('Correct');
-        await Future.delayed(Duration(seconds: 1));
-        setState(() {
-          _isListening = false;
-        });
-        await _speechToText.stop();
-        await Future.delayed(Duration(milliseconds: 500));
-      } else {
-        setState(() {
-          _answerStatus = 'Wrong, please try again.';
-        });
-        await _speakAnswerStatus('Wrong, please try again.');
-        setState(() {
-          _isListening = false;
-        });
-        await _speechToText.stop();
-      }
-    } catch (e) {
-      setState(() {
-        _answerStatus = 'Invalid input, please try again.';
-      });
-      setState(() {
-        _isListening = false;
-      });
-      await _speechToText.stop();
-    }
+  void _stopListening() {
+    setState(() => _isListening = false);
+    _speech.stop();
   }
 
-  void _listen() async {
-    if (_isListening) {
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
+  void _checkAnswer(int userAnswer) async {
+    _processingAnswer =
+        true; // Prevent further processing until this is complete
+    _stopListening(); // Stop listening during answer check
+
+    if (userAnswer == _currentQuestion?.answer) {
+      _speak("Correct!");
     } else {
-      await _speechToText.listen(
-          onResult: (val) => checkAnswer(val.recognizedWords));
-      setState(() {
-        _isListening = true;
-      });
+      _speak("Incorrect, the correct answer is ${_currentQuestion?.answer}.");
     }
   }
 
-  void _repeatQuestion() async {
-    await _speakQuestion();
+  void _speak(String text) async {
+    await _flutterTts.setLanguage("en-US");
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.speak(text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const HomePage()));
-          },
-        ),
-        title: const Text('Addition'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _isListening ? null : generateQuestion,
-                  child: Text(
-                    'Next Question',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(width: 5, color: Colors.black),
-                    minimumSize: Size(double.infinity, 200),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Set the radius to 2
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Text(
-              _question.isNotEmpty
-                  ? _question
-                  : 'Press "Next Question" to start.',
-              style: TextStyle(fontSize: 24),
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _listen,
-                  child: Text(
-                    'Answer',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 200),
-                    side: BorderSide(width: 5, color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Set the radius to 2
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _repeatQuestion,
-                  child: Text(
-                    'Repeat Question',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 200),
-                    side: BorderSide(width: 5, color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      appBar: AppBar(title: Text('Addition Solver')),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            _currentQuestion?.toString() ?? "Loading question...",
+            style: TextStyle(fontSize: 24),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          FloatingActionButton(
+            onPressed: _isListening ? _stopListening : _startListening,
+            child: Icon(_isListening ? Icons.mic_off : Icons.mic),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _generateNewQuestion,
+            child: Text("Next Question"),
+          ),
+        ],
       ),
     );
   }
+}
+
+class MathQuestion {
+  final int num1;
+  final int num2;
+  final String operation;
+  final int answer;
+
+  MathQuestion(this.num1, this.num2, this.operation, this.answer);
 
   @override
-  void dispose() {
-    _speechToText.cancel();
-    super.dispose();
+  String toString() {
+    return "$num1 $operation $num2";
   }
+}
+
+MathQuestion generateAdditionQuestion() {
+  Random random = Random();
+  int num1 = random.nextInt(20) + 1; // Random number between 1 and 20
+  int num2 = random.nextInt(20) + 1;
+  int answer = num1 + num2;
+
+  return MathQuestion(num1, num2, "+", answer);
 }
