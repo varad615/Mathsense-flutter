@@ -128,18 +128,18 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _answerStatus = 'Correct';
         });
-        await _speakAnswerStatus('Correct');
-        await Future.delayed(Duration(seconds: 1));
+        _speakAnswerStatus('Correct');
+        Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question after correct answer
       } else {
         setState(() {
           _answerStatus = 'Wrong, the correct answer is $_result';
         });
-        await _speakAnswerStatus('Wrong, the correct answer is $_result');
-        await Future.delayed(Duration(seconds: 1));
+        _speakAnswerStatus('Wrong, the correct answer is $_result');
+        Future.delayed(Duration(seconds: 1));
         generateQuestion(); // Generate new question after incorrect answer
       }
-      await _speechToText.stop();
+      _speechToText.stop();
       setState(() {
         _isListening = false;
       });
@@ -150,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _isListening = false;
       });
-      await _speechToText.stop();
+      _speechToText.stop();
     }
   }
 
