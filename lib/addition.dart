@@ -37,21 +37,24 @@ class _AdditionPageState extends State<AdditionPage> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _welcomeAndLoadQuestion();
+    _welcomeMessage();
   }
 
-  void _welcomeAndLoadQuestion() async {
-    _speak("Welcome to Addition Solver!");
-    _generateNewQuestion();
+  void _welcomeMessage() async {
+    _speak("Welcome to Addition Solver! Let's start with addition.");
+    _generateNewQuestion(shouldSpeak: false); // Generate the first question without speaking it
   }
 
-  void _generateNewQuestion() {
+  void _generateNewQuestion({bool shouldSpeak = true}) {
     setState(() {
       _currentQuestion = generateAdditionQuestion();
       _text = ""; // Clear previous answer text
       _processingAnswer = false; // Reset answer processing flag
     });
-    _speak(_currentQuestion.toString());
+
+    if (shouldSpeak) {
+      _speak(_currentQuestion.toString());
+    }
   }
 
   void _startListening() async {
@@ -60,19 +63,17 @@ class _AdditionPageState extends State<AdditionPage> {
       setState(() => _isListening = true);
       _speech.listen(
         onResult: (val) {
-          if (val.hasConfidenceRating &&
-              val.confidence > 0.75 &&
-              !_processingAnswer) {
+          if (val.hasConfidenceRating && val.confidence > 0.75 && !_processingAnswer) {
             setState(() {
               _text = val.recognizedWords;
               _checkAnswer(int.tryParse(_text) ?? 0);
             });
           }
         },
-        listenFor: Duration(seconds: 10), // Listen for a longer duration
-        pauseFor: Duration(seconds: 5), // Pause to allow user to respond
+        listenFor: Duration(seconds: 10),
+        pauseFor: Duration(seconds: 5),
         cancelOnError: true,
-        partialResults: false, // Only process final results
+        partialResults: false,
       );
     }
   }
@@ -83,14 +84,15 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _checkAnswer(int userAnswer) async {
-    _processingAnswer =
-        true; // Prevent further processing until this is complete
-    _stopListening(); // Stop listening during answer check
+    _processingAnswer = true;
+    _stopListening();
 
     if (userAnswer == _currentQuestion?.answer) {
       _speak("Correct!");
+      _generateNewQuestion(shouldSpeak: false);
     } else {
-      _speak("Incorrect, the correct answer is ${_currentQuestion?.answer}.");
+      _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+      _generateNewQuestion(shouldSpeak: false);
     }
   }
 
@@ -107,10 +109,17 @@ class _AdditionPageState extends State<AdditionPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            _currentQuestion?.toString() ?? "Loading question...",
-            style: TextStyle(fontSize: 24),
-            textAlign: TextAlign.center,
+          GestureDetector(
+            onTap: () {
+              if (_currentQuestion != null) {
+                _speak(_currentQuestion.toString());
+              }
+            },
+            child: Text(
+              _currentQuestion?.toString() ?? "Tap to hear the question...",
+              style: TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
           ),
           SizedBox(height: 20),
           FloatingActionButton(
@@ -119,7 +128,7 @@ class _AdditionPageState extends State<AdditionPage> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: _generateNewQuestion,
+            onPressed: () => _generateNewQuestion(shouldSpeak: false),
             child: Text("Next Question"),
           ),
         ],
@@ -144,7 +153,7 @@ class MathQuestion {
 
 MathQuestion generateAdditionQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(20) + 1; // Random number between 1 and 20
+  int num1 = random.nextInt(20) + 1;  // Random number between 1 and 20
   int num2 = random.nextInt(20) + 1;
   int answer = num1 + num2;
 
