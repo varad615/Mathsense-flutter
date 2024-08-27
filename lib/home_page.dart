@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           _stopListening();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Multiplication()),
+            MaterialPageRoute(builder: (context) => MultiplicationApp()),
           ).then((_) {
             _aboutPageOpened = false;
           });
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
           _stopListening();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Division()),
+            MaterialPageRoute(builder: (context) => DivisionApp()),
           ).then((_) {
             _aboutPageOpened = false;
           });

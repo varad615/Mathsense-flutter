@@ -79,7 +79,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 10),
+        listenFor: Duration(seconds: 5),
         pauseFor: Duration(seconds: 5),
         cancelOnError: true,
         partialResults: false,

@@ -43,13 +43,15 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _welcomeMessage() async {
-    _speak("Welcome to Addition Solver! Let's start with addition.");
+    _speak(
+        "Let's start with addition. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
         shouldSpeak: false); // Generate the first question without speaking it
   }
 
   void _repeatInstruction() async {
-    _speak("Welcome to Addition Solver! Let's start with addition.");
+    _speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -79,7 +81,7 @@ class _AdditionPageState extends State<AdditionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 10),
+        listenFor: Duration(seconds: 5),
         pauseFor: Duration(seconds: 5),
         cancelOnError: true,
         partialResults: false,

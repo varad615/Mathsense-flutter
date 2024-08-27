@@ -1,175 +1,122 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import 'dart:math';
 
 void main() {
-  runApp(Multiplication());
+  runApp(MultiplicationApp());
 }
 
-class Multiplication extends StatelessWidget {
+class MultiplicationApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Math Game',
+      title: 'Multiplication Solver',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MultiplicationPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MultiplicationPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MultiplicationPageState createState() => _MultiplicationPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final SpeechToText _speechToText = SpeechToText();
-  final FlutterTts _flutterTts = FlutterTts();
+class _MultiplicationPageState extends State<MultiplicationPage> {
+  late stt.SpeechToText _speech;
+  FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
-  bool _answered = false;
-  late int _num1;
-  late int _num2;
-  late int _result;
-  String _question = ''; // Initialize _question with an empty string
-  String _answerStatus = '';
+  String _text = "";
+  MathQuestion? _currentQuestion;
+  bool _processingAnswer = false;
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
-    _initFlutterTts().then((_) {
-      _speakWelcomeMessage();
-    });
+    _speech = stt.SpeechToText();
+    _welcomeMessage();
   }
 
-  Future _initFlutterTts() async {
+  void _welcomeMessage() async {
+    _speak("Welcome to Multiplication Solver! Let's start with multiplication.");
+    _generateNewQuestion(
+        shouldSpeak: false); // Generate the first question without speaking it
+  }
+
+  void _repeatInstruction() async {
+    _speak("Welcome to Multiplication Solver! Let's start with multiplication.");
+  }
+
+  void _generateNewQuestion({bool shouldSpeak = true}) {
+    setState(() {
+      _currentQuestion = generateMultiplicationQuestion();
+      _text = ""; // Clear previous answer text
+      _processingAnswer = false; // Reset answer processing flag
+    });
+
+    if (shouldSpeak) {
+      _speak(_currentQuestion.toString());
+    }
+  }
+
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (val) {
+          if (val.hasConfidenceRating &&
+              val.confidence > 0.75 &&
+              !_processingAnswer) {
+            setState(() {
+              _text = val.recognizedWords;
+              _checkAnswer(int.tryParse(_text) ?? 0);
+            });
+          }
+        },
+        listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 5),
+        cancelOnError: true,
+        partialResults: false,
+      );
+    }
+  }
+
+  void _stopListening() {
+    setState(() => _isListening = false);
+    _speech.stop();
+  }
+
+  void _checkAnswer(int userAnswer) async {
+    _processingAnswer = true;
+    _stopListening();
+
+    if (userAnswer == _currentQuestion?.answer) {
+      _speak("Correct!");
+      _generateNewQuestion(shouldSpeak: false);
+    } else {
+      _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+      _generateNewQuestion(shouldSpeak: false);
+    }
+  }
+
+  void _speak(String text) async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
-
-    _flutterTts.setStartHandler(() {
-      setState(() {
-        _isListening = true;
-      });
-    });
-
-    _flutterTts.setCompletionHandler(() {
-      setState(() {
-        _isListening = false;
-      });
-    });
-
-    _flutterTts.setErrorHandler((err) {
-      setState(() {
-        print("error occurred: $err");
-        _isListening = false;
-      });
-    });
+    await _flutterTts.speak(text);
   }
 
-  Future _repeatInstruction() async {
-    await _flutterTts.speak(
-        "Tap the top of the screen to hear the question and the bottom button to answer.");
+  void _navigateToHome() {
+    // Implement navigation to Home Page
   }
 
-
-  Future _initSpeech() async {
-    await _speechToText.initialize();
-  }
-
-  Future _speakWelcomeMessage() async {
-    await _flutterTts.speak("Let's start with multiplication.");
-    await _flutterTts.awaitSpeakCompletion(true);
-
-    await _flutterTts.speak(  "Tap the top of the screen to hear the question and the bottom button to answer.");
-    await _flutterTts.awaitSpeakCompletion(true);
-
-    generateQuestion(); // Now generate the question after instructions
-  }
-
-  void generateQuestion() {
-    setState(() {
-      _isListening = false;
-      _answered = false;
-    });
-
-    // Generate numbers ensuring the result is always greater than 9
-    do {
-      _num1 = Random().nextInt(10) + 1; // Generate number between 1 and 10
-      _num2 = Random().nextInt(10) + 1; // Generate number between 1 and 10
-      _result = _num1 * _num2;
-    } while (_result <= 9); // Repeat until the result is greater than 9
-
-    _question = 'What is $_num1 multiplied by $_num2?'; // Set the question
-  }
-
-  Future _speakQuestion() async {
-    await _flutterTts.speak(_question);
-
-    setState(() {
-      _isListening = false;
-    });
-  }
-
-  Future _speakAnswerStatus(String message) async {
-    await _flutterTts.speak(message);
-  }
-
-  void checkAnswer(String spokenText) async {
-    try {
-      int spokenNumber = int.parse(spokenText);
-      if (spokenNumber == _result) {
-        setState(() {
-          _answerStatus = 'Correct';
-        });
-        await _speakAnswerStatus('Correct');
-        await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after correct answer
-      } else {
-        setState(() {
-          _answerStatus = 'Wrong, the correct answer is $_result';
-        });
-        await _speakAnswerStatus('Wrong, the correct answer is $_result');
-        await Future.delayed(Duration(seconds: 1));
-        generateQuestion(); // Generate new question after incorrect answer
-      }
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
-    } catch (e) {
-      setState(() {
-        _answerStatus = 'Invalid input, please try again.';
-      });
-      setState(() {
-        _isListening = false;
-      });
-      await _speechToText.stop();
-    }
-  }
-
-  void _listen() async {
-    if (_isListening) {
-      await _speechToText.stop();
-      setState(() {
-        _isListening = false;
-      });
-    } else {
-      await _speechToText.listen(
-          onResult: (val) => checkAnswer(val.recognizedWords));
-      setState(() {
-        _isListening = true;
-      });
-    }
-  }
-
-  void _repeatQuestion() async {
-    await _speakQuestion();
+  void _navigateToFeedback() {
+    // Implement navigation to Feedback Page
   }
 
   @override
@@ -180,20 +127,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: <Widget>[
             GestureDetector(
-              onTap: _isListening
-                  ? null
-                  : _speakQuestion, // Call _speakQuestion on tap
+              onTap: () {
+                if (_currentQuestion != null) {
+                  _speak(_currentQuestion.toString());
+                }
+              },
               child: Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.height * 0.5,
                 color: Colors.black,
                 child: Center(
                   child: Text(
-                    _question.isNotEmpty
-                        ? _question
-                        : 'Tap to start the next question.',
+                    _currentQuestion?.toString() ??
+                        "Tap to hear the question...",
                     style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 30,
                         color: Colors.white), // White text for contrast
                     textAlign: TextAlign.center,
                   ),
@@ -222,9 +170,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: _listen,
+                onPressed: _isListening ? _stopListening : _startListening,
                 child: Text(
-                  'Answer',
+                  _isListening ? 'Listening' : 'Answer',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -288,10 +236,27 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+class MathQuestion {
+  final int num1;
+  final int num2;
+  final String operation;
+  final int answer;
+
+  MathQuestion(this.num1, this.num2, this.operation, this.answer);
 
   @override
-  void dispose() {
-    _speechToText.cancel();
-    super.dispose();
+  String toString() {
+    return "$num1 $operation $num2";
   }
+}
+
+MathQuestion generateMultiplicationQuestion() {
+  Random random = Random();
+  int num1 = random.nextInt(10) + 1; // Random number between 1 and 10
+  int num2 = random.nextInt(10) + 1;
+  int answer = num1 * num2;
+
+  return MathQuestion(num1, num2, "×", answer);
 }
