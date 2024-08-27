@@ -185,14 +185,6 @@ class _AdditionPageState extends State<AdditionPage> {
                 ),
               ),
             ),
-            // ElevatedButton(
-            //   onPressed: _isListening ? _stopListening : _startListening,
-            //   child: Text(_isListening ? 'Listning' : 'Answer'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: _repeatInstruction,
-            //   child: Text("Repeat Instruction"),
-            // ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
@@ -239,29 +231,6 @@ class _AdditionPageState extends State<AdditionPage> {
                 ),
               ),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     if (_currentQuestion != null) {
-            //       _speak(_currentQuestion.toString());
-            //     }
-            //   },
-            //   child: Text("Answer"),
-            // ),
-            // ElevatedButton(
-            //   onPressed: _navigateToHome,
-            //   child: Text("Home"),
-            // ),
-            // ElevatedButton(
-            //   onPressed: _navigateToFeedback,
-            //   child: Text("Feedback"),
-            // ),
-            // Commented out "Next Question" button
-            /*
-            ElevatedButton(
-              onPressed: () => _generateNewQuestion(shouldSpeak: false),
-              child: Text("Next Question"),
-            ),
-            */
           ],
         ),
       ),

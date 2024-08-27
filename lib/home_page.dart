@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
           _stopListening();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Subtraction()),
+            MaterialPageRoute(builder: (context) => SubtractionApp()),
           ).then((_) {
             _aboutPageOpened = false;
           });
