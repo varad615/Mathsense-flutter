@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mathsense/feedback.dart';
+import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 
@@ -42,7 +44,12 @@ class _AdditionPageState extends State<AdditionPage> {
 
   void _welcomeMessage() async {
     _speak("Welcome to Addition Solver! Let's start with addition.");
-    _generateNewQuestion(shouldSpeak: false); // Generate the first question without speaking it
+    _generateNewQuestion(
+        shouldSpeak: false); // Generate the first question without speaking it
+  }
+
+  void _repeatInstruction() async {
+    _speak("Welcome to Addition Solver! Let's start with addition.");
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -63,7 +70,9 @@ class _AdditionPageState extends State<AdditionPage> {
       setState(() => _isListening = true);
       _speech.listen(
         onResult: (val) {
-          if (val.hasConfidenceRating && val.confidence > 0.75 && !_processingAnswer) {
+          if (val.hasConfidenceRating &&
+              val.confidence > 0.75 &&
+              !_processingAnswer) {
             setState(() {
               _text = val.recognizedWords;
               _checkAnswer(int.tryParse(_text) ?? 0);
@@ -102,36 +111,159 @@ class _AdditionPageState extends State<AdditionPage> {
     await _flutterTts.speak(text);
   }
 
+  void _navigateToHome() {
+    // Implement navigation to Home Page
+  }
+
+  void _navigateToFeedback() {
+    // Implement navigation to Feedback Page
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Addition Solver')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (_currentQuestion != null) {
-                _speak(_currentQuestion.toString());
-              }
-            },
-            child: Text(
-              _currentQuestion?.toString() ?? "Tap to hear the question...",
-              style: TextStyle(fontSize: 24),
-              textAlign: TextAlign.center,
+      body: SafeArea(
+        top: true,
+        child: Column(
+          children: <Widget>[
+            GestureDetector(
+              onTap: () {
+                if (_currentQuestion != null) {
+                  _speak(_currentQuestion.toString());
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.5,
+                color: Colors.black,
+                child: Center(
+                  child: Text(
+                    _currentQuestion?.toString() ??
+                        "Tap to hear the question...",
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white), // White text for contrast
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          FloatingActionButton(
-            onPressed: _isListening ? _stopListening : _startListening,
-            child: Icon(_isListening ? Icons.mic_off : Icons.mic),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => _generateNewQuestion(shouldSpeak: false),
-            child: Text("Next Question"),
-          ),
-        ],
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _repeatInstruction,
+                child: Text(
+                  'Repeat Instruction',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _isListening ? _stopListening : _startListening,
+                child: Text(
+                  _isListening ? 'Listning' : 'Answer',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            // ElevatedButton(
+            //   onPressed: _isListening ? _stopListening : _startListening,
+            //   child: Text(_isListening ? 'Listning' : 'Answer'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: _repeatInstruction,
+            //   child: Text("Repeat Instruction"),
+            // ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomePage()));
+                },
+                child: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FeedbackPage()));
+                },
+                child: Text(
+                  'Feedback',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     if (_currentQuestion != null) {
+            //       _speak(_currentQuestion.toString());
+            //     }
+            //   },
+            //   child: Text("Answer"),
+            // ),
+            // ElevatedButton(
+            //   onPressed: _navigateToHome,
+            //   child: Text("Home"),
+            // ),
+            // ElevatedButton(
+            //   onPressed: _navigateToFeedback,
+            //   child: Text("Feedback"),
+            // ),
+            // Commented out "Next Question" button
+            /*
+            ElevatedButton(
+              onPressed: () => _generateNewQuestion(shouldSpeak: false),
+              child: Text("Next Question"),
+            ),
+            */
+          ],
+        ),
       ),
     );
   }
@@ -153,7 +285,7 @@ class MathQuestion {
 
 MathQuestion generateAdditionQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(20) + 1;  // Random number between 1 and 20
+  int num1 = random.nextInt(20) + 1; // Random number between 1 and 20
   int num2 = random.nextInt(20) + 1;
   int answer = num1 + num2;
 
