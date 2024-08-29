@@ -43,15 +43,15 @@ class _DivisionPageState extends State<DivisionPage> {
   }
 
   void _welcomeMessage() async {
-    _speak("Welcome to Division Solver! Let's start with division.");
+    _speak("Let's start with division. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
         shouldSpeak: false); // Generate the first question without speaking it
   }
 
   void _repeatInstruction() async {
-    _speak("Welcome to Division Solver! Let's start with division.");
+    _speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
-
   void _generateNewQuestion({bool shouldSpeak = true}) {
     setState(() {
       _currentQuestion = generateDivisionQuestion();
@@ -129,7 +129,7 @@ class _DivisionPageState extends State<DivisionPage> {
             GestureDetector(
               onTap: () {
                 if (_currentQuestion != null) {
-                  _speak(_currentQuestion.toString());
+                  _speak(_currentQuestion!.toSpeechString());
                 }
               },
               child: Container(
@@ -249,6 +249,10 @@ class MathQuestion {
   @override
   String toString() {
     return "$dividend $operation $divisor";
+  }
+
+  String toSpeechString() {
+    return "$dividend ${operation == '÷' ? 'divided by' : operation} $divisor";
   }
 }
 

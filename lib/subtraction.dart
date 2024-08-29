@@ -43,13 +43,15 @@ class _SubtractionPageState extends State<SubtractionPage> {
   }
 
   void _welcomeMessage() async {
-    _speak("Welcome to Subtraction Solver! Let's start with subtraction.");
+    _speak(
+        "Let's start with subtraction. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
         shouldSpeak: false); // Generate the first question without speaking it
   }
 
   void _repeatInstruction() async {
-    _speak("Welcome to Subtraction Solver! Let's start with subtraction.");
+    _speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -129,7 +131,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
             GestureDetector(
               onTap: () {
                 if (_currentQuestion != null) {
-                  _speak(_currentQuestion.toString());
+                  _speak(_currentQuestion!.toSpeechString());
                 }
               },
               child: Container(
@@ -249,6 +251,10 @@ class MathQuestion {
   @override
   String toString() {
     return "$num1 $operation $num2";
+  }
+
+  String toSpeechString() {
+    return "$num1 ${operation == '-' ? 'minus' : operation} $num2";
   }
 }
 

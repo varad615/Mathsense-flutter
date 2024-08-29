@@ -43,13 +43,15 @@ class _MultiplicationPageState extends State<MultiplicationPage> {
   }
 
   void _welcomeMessage() async {
-    _speak("Welcome to Multiplication Solver! Let's start with multiplication.");
+    _speak(
+        "Let's start with multiplication. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
         shouldSpeak: false); // Generate the first question without speaking it
   }
 
   void _repeatInstruction() async {
-    _speak("Welcome to Multiplication Solver! Let's start with multiplication.");
+    _speak(
+        "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -129,7 +131,7 @@ class _MultiplicationPageState extends State<MultiplicationPage> {
             GestureDetector(
               onTap: () {
                 if (_currentQuestion != null) {
-                  _speak(_currentQuestion.toString());
+                  _speak(_currentQuestion!.toSpeechString());
                 }
               },
               child: Container(
@@ -248,7 +250,12 @@ class MathQuestion {
 
   @override
   String toString() {
-    return "$num1 $operation $num2";
+    return "$num1 $operation $num2"; // Display as "10 × 1"
+  }
+
+  String toSpeechString() {
+    // Speak as "10 multiplied by 1"
+    return "$num1 ${operation == '×' ? 'multiplied by' : operation} $num2";
   }
 }
 

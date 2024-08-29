@@ -81,8 +81,8 @@ class _AdditionPageState extends State<AdditionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        listenFor: Duration(seconds: 1),
+        pauseFor: Duration(seconds: 1),
         cancelOnError: true,
         partialResults: false,
       );
@@ -174,7 +174,7 @@ class _AdditionPageState extends State<AdditionPage> {
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
                 child: Text(
-                  _isListening ? 'Listning' : 'Answer',
+                  _isListening ? 'Listening' : 'Answer',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
