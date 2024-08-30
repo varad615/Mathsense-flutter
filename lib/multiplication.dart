@@ -81,8 +81,8 @@ class _MultiplicationPageState extends State<MultiplicationPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        listenFor: Duration(seconds: 1),
+        pauseFor: Duration(seconds: 1),
         cancelOnError: true,
         partialResults: false,
       );
@@ -261,9 +261,13 @@ class MathQuestion {
 
 MathQuestion generateMultiplicationQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(10) + 1; // Random number between 1 and 10
-  int num2 = random.nextInt(10) + 1;
-  int answer = num1 * num2;
+  int num1, num2, answer;
+
+  do {
+    num1 = random.nextInt(10) + 1; // Random number between 1 and 10
+    num2 = random.nextInt(10) + 1;
+    answer = num1 * num2;
+  } while (answer <= 10); // Ensure that the answer is greater than 10
 
   return MathQuestion(num1, num2, "×", answer);
 }

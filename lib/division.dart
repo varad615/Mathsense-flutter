@@ -43,7 +43,8 @@ class _DivisionPageState extends State<DivisionPage> {
   }
 
   void _welcomeMessage() async {
-    _speak("Let's start with division. Tap the top of the screen to hear the question and the bottom button to answer.");
+    _speak(
+        "Let's start with division. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
         shouldSpeak: false); // Generate the first question without speaking it
   }
@@ -52,6 +53,7 @@ class _DivisionPageState extends State<DivisionPage> {
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
+
   void _generateNewQuestion({bool shouldSpeak = true}) {
     setState(() {
       _currentQuestion = generateDivisionQuestion();
@@ -79,8 +81,8 @@ class _DivisionPageState extends State<DivisionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        listenFor: Duration(seconds: 1),
+        pauseFor: Duration(seconds: 1),
         cancelOnError: true,
         partialResults: false,
       );
@@ -258,9 +260,10 @@ class MathQuestion {
 
 MathQuestion generateDivisionQuestion() {
   Random random = Random();
-  int divisor = random.nextInt(10) + 1; // Avoid division by zero
-  int answer = random.nextInt(10) + 1;
-  int dividend = divisor * answer;
+  int divisor = random.nextInt(10) + 1; // Divisor between 1 and 10
+  int answer = random.nextInt(91) + 10; // Answer between 10 and 100
+  int dividend =
+      divisor * answer; // Dividend is the product of divisor and answer
 
   return MathQuestion(dividend, divisor, "÷", answer);
 }

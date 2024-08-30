@@ -81,8 +81,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        listenFor: Duration(seconds: 1),
+        pauseFor: Duration(seconds: 1),
         cancelOnError: true,
         partialResults: false,
       );
