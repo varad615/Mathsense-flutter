@@ -82,7 +82,7 @@ class _AdditionPageState extends State<AdditionPage> {
           }
         },
         listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
