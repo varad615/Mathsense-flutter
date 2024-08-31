@@ -81,8 +81,8 @@ class _DivisionPageState extends State<DivisionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 6),
-        pauseFor: Duration(seconds: 1),
+         listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
