@@ -256,9 +256,16 @@ class MathQuestion {
 
 MathQuestion generateAdditionQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(20) + 1; // Random number between 1 and 20
-  int num2 = random.nextInt(20) + 1;
-  int answer = num1 + num2;
+  int num1;
+  int num2;
+  int answer;
+
+  // Keep generating until the answer is 10 or greater
+  do {
+    num1 = random.nextInt(20) + 1; // Random number between 1 and 20
+    num2 = random.nextInt(20) + 1;
+    answer = num1 + num2;
+  } while (answer < 10);
 
   return MathQuestion(num1, num2, "+", answer);
 }
