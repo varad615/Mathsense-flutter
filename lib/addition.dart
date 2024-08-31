@@ -50,8 +50,10 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _repeatInstruction() async {
+     await _flutterTts.setSpeechRate(1.5); // Adjust the rate for faster speech
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
+      await _flutterTts.setSpeechRate(1.0); // Adjust the rate for faster speech
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
