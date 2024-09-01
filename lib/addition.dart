@@ -54,7 +54,7 @@ class _AdditionPageState extends State<AdditionPage> {
     //  await _flutterTts.setSpeechRate(0.7); // Adjust the rate for faster speech
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
-       // Adjust the rate for faster speech
+    // Adjust the rate for faster speech
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -115,18 +115,29 @@ class _AdditionPageState extends State<AdditionPage> {
     _stopListening();
 
     if (userAnswer == _currentQuestion?.answer) {
-      _correctAnswersCount++; // Increment the correct answer counter
+      _correctAnswersCount++;
+
+      // Array of motivational messages
+      List<String> motivationalMessages = [
+        "Fantastic! You’re really good at this!",
+        "Amazing! You’re on fire, keep it up!",
+        "Great job! You’re making excellent progress!",
+        "Awesome! You’re doing so well!",
+        "Brilliant! Keep going, you're amazing!"
+      ];
+
       _speak("Correct!");
 
-      // Check if the counter reaches 3
+      // Play special speech after every 3 correct answers
       if (_correctAnswersCount % 3 == 0) {
-        // Add a special speech after every 3 correct answers
-        _speak("Great job! You're on a roll. Keep going!");
+        // Select a random motivational message
+        _speak(motivationalMessages[
+            Random().nextInt(motivationalMessages.length)]);
       }
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
-      _correctAnswersCount = 0; // Reset counter if the answer is wrong
+      _correctAnswersCount = 0;
       _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
       _generateNewQuestion(shouldSpeak: false);
     }
