@@ -28,6 +28,7 @@ class AdditionPage extends StatefulWidget {
 }
 
 class _AdditionPageState extends State<AdditionPage> {
+  int _correctAnswersCount = 0;
   late stt.SpeechToText _speech;
   FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
@@ -94,14 +95,36 @@ class _AdditionPageState extends State<AdditionPage> {
     _speech.stop();
   }
 
+  // void _checkAnswer(int userAnswer) async {
+  //   _processingAnswer = true;
+  //   _stopListening();
+
+  //   if (userAnswer == _currentQuestion?.answer) {
+  //     _speak("Correct!");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   } else {
+  //     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   }
+  // }
+
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
     _stopListening();
 
     if (userAnswer == _currentQuestion?.answer) {
+      _correctAnswersCount++; // Increment the correct answer counter
       _speak("Correct!");
+
+      // Check if the counter reaches 3
+      if (_correctAnswersCount % 3 == 0) {
+        // Add a special speech after every 3 correct answers
+        _speak("Great job! You're on a roll. Keep going!");
+      }
+
       _generateNewQuestion(shouldSpeak: false);
     } else {
+      _correctAnswersCount = 0; // Reset counter if the answer is wrong
       _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
       _generateNewQuestion(shouldSpeak: false);
     }
