@@ -51,8 +51,10 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _repeatInstruction() async {
+    //  await _flutterTts.setSpeechRate(0.7); // Adjust the rate for faster speech
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
+       // Adjust the rate for faster speech
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -82,8 +84,8 @@ class _AdditionPageState extends State<AdditionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 1),
-        pauseFor: Duration(seconds: 1),
+        listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
@@ -197,7 +199,7 @@ class _AdditionPageState extends State<AdditionPage> {
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
                 child: Text(
-                  _isListening ? 'Listening' : 'Answer',
+                  _isListening ? 'Listning' : 'Answer',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -279,9 +281,16 @@ class MathQuestion {
 
 MathQuestion generateAdditionQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(20) + 1; // Random number between 1 and 20
-  int num2 = random.nextInt(20) + 1;
-  int answer = num1 + num2;
+  int num1;
+  int num2;
+  int answer;
+
+  // Keep generating until the answer is 10 or greater
+  do {
+    num1 = random.nextInt(20) + 1; // Random number between 1 and 20
+    num2 = random.nextInt(20) + 1;
+    answer = num1 + num2;
+  } while (answer < 10);
 
   return MathQuestion(num1, num2, "+", answer);
 }

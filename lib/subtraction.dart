@@ -81,8 +81,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 1),
-        pauseFor: Duration(seconds: 1),
+         listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
@@ -260,9 +260,15 @@ class MathQuestion {
 
 MathQuestion generateSubtractionQuestion() {
   Random random = Random();
-  int num1 = random.nextInt(20) + 10; // Ensure num1 is larger than num2
-  int num2 = random.nextInt(10) + 1; // num2 is a smaller number
-  int answer = num1 - num2;
+  int num1;
+  int num2;
+  int answer;
+
+  do {
+    num1 = random.nextInt(30) + 20; // Ensure num1 is sufficiently large
+    num2 = random.nextInt(15) + 1;  // Ensure num2 is smaller
+    answer = num1 - num2;
+  } while (answer <= 10); // Repeat until the answer is greater than 10
 
   return MathQuestion(num1, num2, "-", answer);
 }

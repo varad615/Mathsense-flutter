@@ -81,8 +81,8 @@ class _MultiplicationPageState extends State<MultiplicationPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 1),
-        pauseFor: Duration(seconds: 1),
+         listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
