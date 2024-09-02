@@ -110,6 +110,52 @@ class _AdditionPageState extends State<AdditionPage> {
   //   }
   // }
 
+//   void _checkAnswer(int userAnswer) async {
+//   _processingAnswer = true;
+//   _stopListening();
+//
+//   if (userAnswer == _currentQuestion?.answer) {
+//     _correctAnswersCount++;
+//
+//     // Array of motivational messages
+//     List<String> motivationalMessages = [
+//       "Fantastic! You’re really good at this!",
+//       "Amazing! You’re on fire, keep it up!",
+//       "Great job! You’re making excellent progress!",
+//       "Awesome! You’re doing so well!",
+//       "Brilliant! Keep going, you're amazing!"
+//     ];
+//
+//     _speak("Correct!");
+//
+//     // Play special speech after every 3 correct answers
+//     if (_correctAnswersCount % 3 == 0) {
+//       // Select a random motivational message
+//       _speak(motivationalMessages[
+//           Random().nextInt(motivationalMessages.length)]);
+//     }
+//
+//     _generateNewQuestion(shouldSpeak: false);
+//   } else {
+//     _correctAnswersCount = 0;
+//     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+//
+//     // Array of encouraging quotes
+//     List<String> encouragingQuotes = [
+//       "Don't worry, mistakes are an essential part of learning!",
+//       "Keep trying, you'll get it next time!",
+//       "Every mistake brings you closer to success!",
+//       "Don't give up, you're doing great!",
+//       "Remember, practice makes perfect!"
+//     ];
+//
+//     // Select a random encouraging quote
+//     _speak(encouragingQuotes[Random().nextInt(encouragingQuotes.length)]);
+//
+//     _generateNewQuestion(shouldSpeak: false);
+//   }
+// }
+
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
     _stopListening();
@@ -117,28 +163,32 @@ class _AdditionPageState extends State<AdditionPage> {
     if (userAnswer == _currentQuestion?.answer) {
       _correctAnswersCount++;
 
-      // Array of motivational messages
-      List<String> motivationalMessages = [
-        "Fantastic! You’re really good at this!",
-        "Amazing! You’re on fire, keep it up!",
-        "Great job! You’re making excellent progress!",
-        "Awesome! You’re doing so well!",
-        "Brilliant! Keep going, you're amazing!"
+      // Array of phrases for correct answers
+      List<String> correctPhrases = [
+        "Good job!",
+        "Well done!",
+        "You're on fire!",
       ];
 
       _speak("Correct!");
 
-      // Play special speech after every 3 correct answers
-      if (_correctAnswersCount % 3 == 0) {
-        // Select a random motivational message
-        _speak(motivationalMessages[
-            Random().nextInt(motivationalMessages.length)]);
-      }
+      // Play special speech after every correct answer
+      _speak(correctPhrases[Random().nextInt(correctPhrases.length)]);
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
       _correctAnswersCount = 0;
       _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+
+      // Array of phrases for wrong answers
+      List<String> wrongPhrases = [
+        "Oops! Try the next one.",
+        "Keep going.",
+      ];
+
+      // Play special speech after every wrong answer
+      _speak(wrongPhrases[Random().nextInt(wrongPhrases.length)]);
+
       _generateNewQuestion(shouldSpeak: false);
     }
   }

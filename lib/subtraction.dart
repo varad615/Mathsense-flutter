@@ -81,7 +81,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
             });
           }
         },
-         listenFor: Duration(seconds: 5),
+        listenFor: Duration(seconds: 5),
         pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
@@ -94,15 +94,48 @@ class _SubtractionPageState extends State<SubtractionPage> {
     _speech.stop();
   }
 
+  // void _checkAnswer(int userAnswer) async {
+  //   _processingAnswer = true;
+  //   _stopListening();
+  //
+  //   if (userAnswer == _currentQuestion?.answer) {
+  //     _speak("Correct!");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   } else {
+  //     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   }
+  // }
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
     _stopListening();
 
     if (userAnswer == _currentQuestion?.answer) {
       _speak("Correct!");
+
+      // Array of phrases for correct answers
+      List<String> correctPhrases = [
+        "Good job!",
+        "Well done!",
+        "You're on fire!",
+      ];
+
+      // Play special speech after every correct answer
+      _speak(correctPhrases[Random().nextInt(correctPhrases.length)]);
+
       _generateNewQuestion(shouldSpeak: false);
     } else {
       _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+
+      // Array of phrases for wrong answers
+      List<String> wrongPhrases = [
+        "Oops! Try the next one.",
+        "Keep going.",
+      ];
+
+      // Play special speech after every wrong answer
+      _speak(wrongPhrases[Random().nextInt(wrongPhrases.length)]);
+
       _generateNewQuestion(shouldSpeak: false);
     }
   }
@@ -266,7 +299,7 @@ MathQuestion generateSubtractionQuestion() {
 
   do {
     num1 = random.nextInt(30) + 20; // Ensure num1 is sufficiently large
-    num2 = random.nextInt(15) + 1;  // Ensure num2 is smaller
+    num2 = random.nextInt(15) + 1; // Ensure num2 is smaller
     answer = num1 - num2;
   } while (answer <= 10); // Repeat until the answer is greater than 10
 
