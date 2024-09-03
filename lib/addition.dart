@@ -253,7 +253,7 @@ class _AdditionPageState extends State<AdditionPage> {
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
                 child: Text(
-                  _isListening ? 'Listning' : 'Answer',
+                  _isListening ? 'Listening' : 'Answer',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
