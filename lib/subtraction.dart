@@ -107,6 +107,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
   //   }
   // }
   int _correctCount = 0;
+  int _wrongCount = 0; // Declare _wrongCount as a class member
+
 
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
@@ -131,7 +133,26 @@ class _SubtractionPageState extends State<SubtractionPage> {
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
-      _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+      _wrongCount++; // Increment _wrongCount
+
+      String wrongSentence = "Wrong, the right answer is ${_currentQuestion?.answer}.";
+
+      if (_wrongCount % 3 == 0) {
+        // Array of encouraging quotes for wrong answers
+        List<String> encouragingQuotes = [
+          "Oops! Try the next one.",
+          "Keep going.",
+          // "Every mistake brings you closer to success!",
+          // "Don't give up, you're doing great!",
+          // "Remember, practice makes perfect!",
+        ];
+
+        // Append the encouraging quote to the wrong sentence
+        wrongSentence += " " + encouragingQuotes[Random().nextInt(encouragingQuotes.length)];
+      }
+
+      _speak(wrongSentence);
+
       _generateNewQuestion(shouldSpeak: false);
     }
   }
