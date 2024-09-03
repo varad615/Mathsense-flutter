@@ -106,6 +106,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
   //     _generateNewQuestion(shouldSpeak: false);
   //   }
   // }
+  int _correctCount = 0;
+
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
     _stopListening();
@@ -113,29 +115,23 @@ class _SubtractionPageState extends State<SubtractionPage> {
     if (userAnswer == _currentQuestion?.answer) {
       _speak("Correct!");
 
-      // Array of phrases for correct answers
-      List<String> correctPhrases = [
-        "Good job!",
-        "Well done!",
-        "You're on fire!",
-      ];
+      _correctCount++;
 
-      // Play special speech after every correct answer
-      _speak(correctPhrases[Random().nextInt(correctPhrases.length)]);
+      if (_correctCount % 3 == 0) {
+        // Array of phrases for correct answers
+        List<String> correctPhrases = [
+          "Good job!",
+          "Well done!",
+          "You're on fire!",
+        ];
+
+        // Play special speech after every 3 correct answers
+        _speak(correctPhrases[Random().nextInt(correctPhrases.length)]);
+      }
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
       _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
-
-      // Array of phrases for wrong answers
-      List<String> wrongPhrases = [
-        "Oops! Try the next one.",
-        "Keep going.",
-      ];
-
-      // Play special speech after every wrong answer
-      _speak(wrongPhrases[Random().nextInt(wrongPhrases.length)]);
-
       _generateNewQuestion(shouldSpeak: false);
     }
   }
