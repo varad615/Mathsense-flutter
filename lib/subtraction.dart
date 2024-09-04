@@ -133,25 +133,16 @@ class _SubtractionPageState extends State<SubtractionPage> {
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
-      _wrongCount++; // Increment _wrongCount
+      List<String> wrongQuotes = [
+        "Keep going!",
+        "Stay focused. You can do it!",
+        "Try the next one!",
+      ];
 
-      String wrongSentence = "Wrong, the right answer is ${_currentQuestion?.answer}.";
-
-      if (_wrongCount % 3 == 0) {
-        // Array of encouraging quotes for wrong answers
-        List<String> encouragingQuotes = [
-          "Oops! Try the next one.",
-          "Keep going.",
-          // "Every mistake brings you closer to success!",
-          // "Don't give up, you're doing great!",
-          // "Remember, practice makes perfect!",
-        ];
-
-        // Append the encouraging quote to the wrong sentence
-        wrongSentence += " " + encouragingQuotes[Random().nextInt(encouragingQuotes.length)];
-      }
-
-      _speak(wrongSentence);
+      _speak(
+          "Wrong, the right answer is ${_currentQuestion?.answer}. ${wrongQuotes[Random().nextInt(wrongQuotes.length)]}");
+      // Play a quote after every wrong answer
+      // _speak(wrongQuotes[Random().nextInt(wrongQuotes.length)]);
 
       _generateNewQuestion(shouldSpeak: false);
     }
