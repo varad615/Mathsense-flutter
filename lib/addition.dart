@@ -157,7 +157,7 @@ class _AdditionPageState extends State<AdditionPage> {
 // }
 
   int _correctCount = 0;
-  int _wrongCount = 0;
+  int wrongQuoteIndex = 0;
 
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
@@ -208,16 +208,14 @@ class _AdditionPageState extends State<AdditionPage> {
 
       // Array of short quotes for wrong answers
       List<String> wrongQuotes = [
-        "Keep going!",
-        "Stay focused. You can do it!",
-        "Try the next one!",
+        "Wrong, the right answer is ${_currentQuestion?.answer}. Keep going!",
+        "Wrong, the right answer is ${_currentQuestion?.answer}. Stay focused. You can do it!",
+        "Wrong, the right answer is ${_currentQuestion?.answer}. Try the next one!",
       ];
 
-      _speak(
-          "Wrong, the right answer is ${_currentQuestion?.answer}. ${wrongQuotes[Random().nextInt(wrongQuotes.length)]}");
-      // Play a quote after every wrong answer
-      // _speak(wrongQuotes[Random().nextInt(wrongQuotes.length)]);
-
+      // _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+      _speak(wrongQuotes[wrongQuoteIndex]);
+      wrongQuoteIndex = (wrongQuoteIndex + 1) % wrongQuotes.length;
       _generateNewQuestion(shouldSpeak: false);
     }
   }
