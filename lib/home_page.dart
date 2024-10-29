@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mathsense/setting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -45,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _speakInitialMessage() async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
+    await _flutterTts.setSpeechRate(0.5);
     await _flutterTts
         .speak("Tap on the screen and say what skill you want to practice "
             "like addition, subtraction, multiplication, or division.");
@@ -114,6 +116,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        // title: Text("Home Page"),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         top: true,
         child: Center(
@@ -156,6 +176,30 @@ class _HomePageState extends State<HomePage> {
                       : _speakInitialMessage,
                   child: Text(
                     "Repeat Instructions",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    side: BorderSide(width: 2, color: Colors.white),
+                    minimumSize: Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              // Add Skip Instructions button here
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await _flutterTts.stop(); // Stop TTS immediately
+                    setState(() {
+                      _isSpeaking = false; // Allow other actions
+                    });
+                  },
+                  child: Text(
+                    "Skip Instructions",
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
