@@ -10,6 +10,8 @@ void main() {
 }
 
 class AdditionApp extends StatelessWidget {
+  const AdditionApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,14 +25,16 @@ class AdditionApp extends StatelessWidget {
 }
 
 class AdditionPage extends StatefulWidget {
+  const AdditionPage({super.key});
+
   @override
   _AdditionPageState createState() => _AdditionPageState();
 }
 
 class _AdditionPageState extends State<AdditionPage> {
-  int _correctAnswersCount = 0;
+  final int _correctAnswersCount = 0;
   late stt.SpeechToText _speech;
-  FlutterTts _flutterTts = FlutterTts();
+  final FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
   String _text = "";
   MathQuestion? _currentQuestion;
@@ -84,8 +88,8 @@ class _AdditionPageState extends State<AdditionPage> {
             });
           }
         },
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 2),
+        listenFor: const Duration(seconds: 5),
+        pauseFor: const Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
@@ -255,7 +259,7 @@ class _AdditionPageState extends State<AdditionPage> {
                   child: Text(
                     _currentQuestion?.toString() ??
                         "Tap to hear the question...",
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 30,
                         color: Colors.white), // White text for contrast
                     textAlign: TextAlign.center,
@@ -263,22 +267,22 @@ class _AdditionPageState extends State<AdditionPage> {
                 ),
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _repeatInstruction,
-                child: Text(
-                  'Repeat Instruction',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  side: const BorderSide(width: 2, color: Colors.white),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                ),
+                child: Text(
+                  'Repeat Instruction',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -286,17 +290,17 @@ class _AdditionPageState extends State<AdditionPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
-                child: Text(
-                  _isListening ? 'Listening' : 'Answer',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  side: const BorderSide(width: 2, color: Colors.white),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                ),
+                child: Text(
+                  _isListening ? 'Listening' : 'Answer',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -309,17 +313,17 @@ class _AdditionPageState extends State<AdditionPage> {
                       MaterialPageRoute(
                           builder: (context) => const HomePage()));
                 },
-                child: Text(
-                  'Home',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  side: const BorderSide(width: 2, color: Colors.white),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                ),
+                child: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -332,17 +336,17 @@ class _AdditionPageState extends State<AdditionPage> {
                       MaterialPageRoute(
                           builder: (context) => const FeedbackPage()));
                 },
-                child: Text(
-                  'Feedback',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: BorderSide(width: 2, color: Colors.white),
-                  minimumSize: Size(double.infinity, 50),
+                  side: const BorderSide(width: 2, color: Colors.white),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                ),
+                child: Text(
+                  'Feedback',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),

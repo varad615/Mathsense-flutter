@@ -3,6 +3,8 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:mathsense/home_page.dart';
 
 class WelcomePage extends StatefulWidget {
+  const WelcomePage({super.key});
+
   @override
   _WelcomePageState createState() => _WelcomePageState();
 }
@@ -41,7 +43,7 @@ class _WelcomePageState extends State<WelcomePage> {
         // Navigate to the homepage when the screen is tapped
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       },
       child: Scaffold(
@@ -59,8 +61,8 @@ class _WelcomePageState extends State<WelcomePage> {
                   fit: BoxFit.contain,
                 ),
               ),
-              SizedBox(height: 16.0), // Space between the image and the text
-              Text(
+              const SizedBox(height: 16.0), // Space between the image and the text
+              const Text(
                 'By Ishaan Bhasin',
                 style: TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic),
               ),

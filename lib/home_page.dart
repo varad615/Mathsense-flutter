@@ -3,10 +3,11 @@ import 'package:mathsense/setting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'addition.dart';
 import 'subtraction.dart';
-import 'multiplication.dart'; // Ensure you import the Multiplication page
-import 'division.dart'; // Ensure you import the Division page
+import 'multiplication.dart';
+import 'division.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,21 +21,21 @@ class _HomePageState extends State<HomePage> {
   final FlutterTts _flutterTts = FlutterTts();
 
   bool _speechEnabled = false;
-  bool _isSpeaking = true; // Flag to disable button while speaking
+  bool _isSpeaking = true;
   String _wordsSpoken = "";
-  bool _aboutPageOpened = false; // Flag to prevent multiple navigations
+  bool _aboutPageOpened = false;
 
   @override
   void initState() {
     super.initState();
     initSpeech();
-    _speakInitialMessage();
+    _speakInitialMessage(); // Speak initial message on page load
   }
 
   @override
   void dispose() {
-    _stopListening(); // Ensure the microphone stops listening when the widget is disposed
-    _flutterTts.stop(); // Ensure TTS stops when the widget is disposed
+    _stopListening();
+    _flutterTts.stop();
     super.dispose();
   }
 
@@ -44,21 +45,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _speakInitialMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    double speechRate = prefs.getDouble('speechRate') ?? 0.5; // Fetch rate or use default 0.5
+
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
-    await _flutterTts.setSpeechRate(0.5);
-    await _flutterTts
-        .speak("Tap on the screen and say what skill you want to practice "
-            "like addition, subtraction, multiplication, or division.");
+    await _flutterTts.setSpeechRate(speechRate); // Use stored or default rate
+    await _flutterTts.speak(
+      "Tap on the screen and say what skill you want to practice "
+      "like addition, subtraction, multiplication, or division.",
+    );
     _flutterTts.setCompletionHandler(() {
       setState(() {
-        _isSpeaking = false; // Enable the button after speaking is done
+        _isSpeaking = false;
       });
     });
   }
 
   void _startListening() async {
-    _aboutPageOpened = false; // Reset the flag when listening starts
+    _aboutPageOpened = false;
     await _speechToText.listen(onResult: _onSpeechResult);
     setState(() {});
   }
@@ -73,43 +78,26 @@ class _HomePageState extends State<HomePage> {
       _wordsSpoken = result.recognizedWords;
       if (!_aboutPageOpened) {
         if (_wordsSpoken.toLowerCase().contains("addition")) {
-          _aboutPageOpened = true;
-          _stopListening();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AdditionPage()),
-          ).then((_) {
-            _aboutPageOpened = false;
-          });
+          _navigateToPage(AdditionPage());
         } else if (_wordsSpoken.toLowerCase().contains("subtraction")) {
-          _aboutPageOpened = true;
-          _stopListening();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SubtractionApp()),
-          ).then((_) {
-            _aboutPageOpened = false;
-          });
+          _navigateToPage(SubtractionApp());
         } else if (_wordsSpoken.toLowerCase().contains("multiplication")) {
-          _aboutPageOpened = true;
-          _stopListening();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MultiplicationApp()),
-          ).then((_) {
-            _aboutPageOpened = false;
-          });
+          _navigateToPage(MultiplicationApp());
         } else if (_wordsSpoken.toLowerCase().contains("division")) {
-          _aboutPageOpened = true;
-          _stopListening();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DivisionApp()),
-          ).then((_) {
-            _aboutPageOpened = false;
-          });
+          _navigateToPage(DivisionApp());
         }
       }
+    });
+  }
+
+  void _navigateToPage(Widget page) {
+    _aboutPageOpened = true;
+    _stopListening();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    ).then((_) {
+      _aboutPageOpened = false;
     });
   }
 
@@ -118,13 +106,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        // title: Text("Home Page"),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.settings,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
               Navigator.push(
                 context,
@@ -135,7 +119,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SafeArea(
-        top: true,
         child: Center(
           child: Column(
             children: [
@@ -144,26 +127,24 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: _isSpeaking
-                        ? null // Disable the button while TTS is speaking
+                        ? null
                         : _speechToText.isListening
                             ? _stopListening
                             : _startListening,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _isSpeaking ? Colors.grey : Colors.white,
+                      side: const BorderSide(width: 2, color: Colors.black),
+                      minimumSize: const Size(double.infinity, 200),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     child: Text(
                       _speechToText.isListening
                           ? "Stop Listening"
                           : "Tap to Choose Quiz",
-                      style: TextStyle(fontSize: 24, color: Colors.black),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isSpeaking
-                          ? Colors.grey
-                          : Colors.white, // Grey out button while speaking
-                      side: BorderSide(width: 2, color: Colors.black),
-                      minimumSize: Size(double.infinity, 200),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Set the radius to 2
-                      ),
+                      style: const TextStyle(fontSize: 24, color: Colors.black),
                     ),
                   ),
                 ),
@@ -171,44 +152,41 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: _isSpeaking
-                      ? null // Disable the button while TTS is speaking
-                      : _speakInitialMessage,
-                  child: Text(
-                    "Repeat Instructions",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
+                  onPressed: _isSpeaking ? null : _speakInitialMessage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
-                    side: BorderSide(width: 2, color: Colors.white),
-                    minimumSize: Size(double.infinity, 50),
+                    side: const BorderSide(width: 2, color: Colors.white),
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: const Text(
+                    "Repeat Instructions",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ),
-              // Add Skip Instructions button here
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    await _flutterTts.stop(); // Stop TTS immediately
+                    await _flutterTts.stop();
                     setState(() {
-                      _isSpeaking = false; // Allow other actions
+                      _isSpeaking = false;
                     });
                   },
-                  child: Text(
-                    "Skip Instructions",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
-                    side: BorderSide(width: 2, color: Colors.white),
-                    minimumSize: Size(double.infinity, 50),
+                    side: const BorderSide(width: 2, color: Colors.white),
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                  ),
+                  child: const Text(
+                    "Skip Instructions",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
               ),
@@ -221,7 +199,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: HomePage(),
   ));
 }
