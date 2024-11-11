@@ -82,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text("Default"),
+              child: const Text("Default"),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
@@ -96,7 +96,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text("Set Speed"),
+              child: const Text("Set Speed"),
             ),
           ],
         ),

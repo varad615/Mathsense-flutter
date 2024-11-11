@@ -78,13 +78,13 @@ class _HomePageState extends State<HomePage> {
       _wordsSpoken = result.recognizedWords;
       if (!_aboutPageOpened) {
         if (_wordsSpoken.toLowerCase().contains("addition")) {
-          _navigateToPage(AdditionPage());
+          _navigateToPage(const AdditionPage());
         } else if (_wordsSpoken.toLowerCase().contains("subtraction")) {
-          _navigateToPage(SubtractionApp());
+          _navigateToPage(const SubtractionApp());
         } else if (_wordsSpoken.toLowerCase().contains("multiplication")) {
-          _navigateToPage(MultiplicationApp());
+          _navigateToPage(const MultiplicationApp());
         } else if (_wordsSpoken.toLowerCase().contains("division")) {
-          _navigateToPage(DivisionApp());
+          _navigateToPage(const DivisionApp());
         }
       }
     });
@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),

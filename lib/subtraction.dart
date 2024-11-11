@@ -4,9 +4,10 @@ import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 
 void main() {
-  runApp(SubtractionApp());
+  runApp(const SubtractionApp());
 }
 
 class SubtractionApp extends StatelessWidget {
@@ -19,7 +20,7 @@ class SubtractionApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SubtractionPage(),
+      home: const SubtractionPage(),
     );
   }
 }
@@ -46,7 +47,15 @@ class _SubtractionPageState extends State<SubtractionPage> {
     _welcomeMessage();
   }
 
+  // Method to fetch and apply speech rate
+  Future<void> _applySpeechRate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    double speechRate = prefs.getDouble('speechRate') ?? 0.5; // Fetch rate or use default 0.5
+    await _flutterTts.setSpeechRate(speechRate); // Apply the speech rate
+  }
+
   void _welcomeMessage() async {
+    await _applySpeechRate(); // Ensure speech rate is set before speaking
     _speak(
         "Let's start with subtraction. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
@@ -54,6 +63,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
   }
 
   void _repeatInstruction() async {
+    await _applySpeechRate(); // Ensure speech rate is set before speaking
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
@@ -98,21 +108,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
     _speech.stop();
   }
 
-  // void _checkAnswer(int userAnswer) async {
-  //   _processingAnswer = true;
-  //   _stopListening();
-  //
-  //   if (userAnswer == _currentQuestion?.answer) {
-  //     _speak("Correct!");
-  //     _generateNewQuestion(shouldSpeak: false);
-  //   } else {
-  //     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
-  //     _generateNewQuestion(shouldSpeak: false);
-  //   }
-  // }
   int _correctCount = 0;
   int wrongQuoteIndex = 0;
-
 
   void _checkAnswer(int userAnswer) async {
     _processingAnswer = true;
@@ -143,7 +140,6 @@ class _SubtractionPageState extends State<SubtractionPage> {
         "Wrong, the right answer is ${_currentQuestion?.answer}. Try the next one!",
       ];
 
-      // _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
       _speak(wrongQuotes[wrongQuoteIndex]);
       wrongQuoteIndex = (wrongQuoteIndex + 1) % wrongQuotes.length;
       _generateNewQuestion(shouldSpeak: false);
@@ -151,6 +147,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
   }
 
   void _speak(String text) async {
+    await _applySpeechRate(); // Ensure speech rate is set before speaking
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(text);
@@ -183,11 +180,8 @@ class _SubtractionPageState extends State<SubtractionPage> {
                 color: Colors.black,
                 child: Center(
                   child: Text(
-                    _currentQuestion?.toString() ??
-                        "Tap to hear the question...",
-                    style: const TextStyle(
-                        fontSize: 30,
-                        color: Colors.white), // White text for contrast
+                    _currentQuestion?.toString() ?? "Tap to hear the question...",
+                    style: const TextStyle(fontSize: 30, color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -206,7 +200,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Repeat Instruction',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
@@ -226,7 +220,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
                 ),
                 child: Text(
                   _isListening ? 'Listening' : 'Answer',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -247,7 +241,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Home',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
@@ -270,7 +264,7 @@ class _SubtractionPageState extends State<SubtractionPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Feedback',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
@@ -293,10 +287,11 @@ class MathQuestion {
 
   @override
   String toString() {
-    return "$num1 $operation $num2";
+    return "$num1 $operation $num2"; // Display as "10 - 1"
   }
 
   String toSpeechString() {
+    // Speak as "10 minus 1"
     return "$num1 ${operation == '-' ? 'minus' : operation} $num2";
   }
 }
