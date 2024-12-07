@@ -4,15 +4,12 @@ import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import for SharedPreferences
 
 void main() {
-  runApp(const DivisionApp());
+  runApp(DivisionApp());
 }
 
 class DivisionApp extends StatelessWidget {
-  const DivisionApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,21 +17,19 @@ class DivisionApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const DivisionPage(),
+      home: DivisionPage(),
     );
   }
 }
 
 class DivisionPage extends StatefulWidget {
-  const DivisionPage({super.key});
-
   @override
   _DivisionPageState createState() => _DivisionPageState();
 }
 
 class _DivisionPageState extends State<DivisionPage> {
   late stt.SpeechToText _speech;
-  final FlutterTts _flutterTts = FlutterTts();
+  FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
   String _text = "";
   MathQuestion? _currentQuestion;
@@ -47,15 +42,7 @@ class _DivisionPageState extends State<DivisionPage> {
     _welcomeMessage();
   }
 
-  // Method to fetch and apply speech rate
-  Future<void> _applySpeechRate() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    double speechRate = prefs.getDouble('speechRate') ?? 0.5; // Fetch rate or use default 0.5
-    await _flutterTts.setSpeechRate(speechRate); // Apply the speech rate
-  }
-
   void _welcomeMessage() async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
     _speak(
         "Let's start with division. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
@@ -63,7 +50,6 @@ class _DivisionPageState extends State<DivisionPage> {
   }
 
   void _repeatInstruction() async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
   }
@@ -95,8 +81,8 @@ class _DivisionPageState extends State<DivisionPage> {
             });
           }
         },
-        listenFor: const Duration(seconds: 5),
-        pauseFor: const Duration(seconds: 2),
+         listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
@@ -107,6 +93,19 @@ class _DivisionPageState extends State<DivisionPage> {
     setState(() => _isListening = false);
     _speech.stop();
   }
+
+  // void _checkAnswer(int userAnswer) async {
+  //   _processingAnswer = true;
+  //   _stopListening();
+  //
+  //   if (userAnswer == _currentQuestion?.answer) {
+  //     _speak("Correct!");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   } else {
+  //     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   }
+  // }
 
   int _correctCount = 0;
   int wrongQuoteIndex = 0;
@@ -140,14 +139,15 @@ class _DivisionPageState extends State<DivisionPage> {
         "Wrong, the right answer is ${_currentQuestion?.answer}. Try the next one!",
       ];
 
+      // _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
       _speak(wrongQuotes[wrongQuoteIndex]);
       wrongQuoteIndex = (wrongQuoteIndex + 1) % wrongQuotes.length;
       _generateNewQuestion(shouldSpeak: false);
     }
   }
 
+
   void _speak(String text) async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(text);
@@ -180,29 +180,32 @@ class _DivisionPageState extends State<DivisionPage> {
                 color: Colors.black,
                 child: Center(
                   child: Text(
-                    _currentQuestion?.toString() ?? "Tap to hear the question...",
-                    style: const TextStyle(fontSize: 30, color: Colors.white),
+                    _currentQuestion?.toString() ??
+                        "Tap to hear the question...",
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white), // White text for contrast
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _repeatInstruction,
+                child: Text(
+                  'Repeat Instruction',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Repeat Instruction',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -210,17 +213,17 @@ class _DivisionPageState extends State<DivisionPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
+                child: Text(
+                  _isListening ? 'Listening' : 'Answer',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: Text(
-                  _isListening ? 'Listening' : 'Answer',
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -233,17 +236,17 @@ class _DivisionPageState extends State<DivisionPage> {
                       MaterialPageRoute(
                           builder: (context) => const HomePage()));
                 },
+                child: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Home',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -256,17 +259,17 @@ class _DivisionPageState extends State<DivisionPage> {
                       MaterialPageRoute(
                           builder: (context) => const FeedbackPage()));
                 },
+                child: Text(
+                  'Feedback',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Feedback',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),

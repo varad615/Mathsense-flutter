@@ -4,15 +4,12 @@ import 'package:mathsense/feedback.dart';
 import 'package:mathsense/home_page.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import for SharedPreferences
 
 void main() {
-  runApp(const AdditionApp());
+  runApp(AdditionApp());
 }
 
 class AdditionApp extends StatelessWidget {
-  const AdditionApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,22 +17,20 @@ class AdditionApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const AdditionPage(),
+      home: AdditionPage(),
     );
   }
 }
 
 class AdditionPage extends StatefulWidget {
-  const AdditionPage({super.key});
-
   @override
   _AdditionPageState createState() => _AdditionPageState();
 }
 
 class _AdditionPageState extends State<AdditionPage> {
-  final int _correctAnswersCount = 0;
+  int _correctAnswersCount = 0;
   late stt.SpeechToText _speech;
-  final FlutterTts _flutterTts = FlutterTts();
+  FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
   String _text = "";
   MathQuestion? _currentQuestion;
@@ -48,15 +43,7 @@ class _AdditionPageState extends State<AdditionPage> {
     _welcomeMessage();
   }
 
-  // Method to fetch and apply speech rate
-  Future<void> _applySpeechRate() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    double speechRate = prefs.getDouble('speechRate') ?? 0.5; // Fetch rate or use default 0.5
-    await _flutterTts.setSpeechRate(speechRate); // Apply the speech rate
-  }
-
   void _welcomeMessage() async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
     _speak(
         "Let's start with addition. Tap the top of the screen to hear the question and the bottom button to answer.");
     _generateNewQuestion(
@@ -64,9 +51,10 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _repeatInstruction() async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
+    //  await _flutterTts.setSpeechRate(0.7); // Adjust the rate for faster speech
     _speak(
         "Tap the top of the screen to hear the question and the bottom button to answer.");
+    // Adjust the rate for faster speech
   }
 
   void _generateNewQuestion({bool shouldSpeak = true}) {
@@ -96,8 +84,8 @@ class _AdditionPageState extends State<AdditionPage> {
             });
           }
         },
-        listenFor: const Duration(seconds: 5),
-        pauseFor: const Duration(seconds: 2),
+        listenFor: Duration(seconds: 5),
+        pauseFor: Duration(seconds: 2),
         cancelOnError: true,
         partialResults: false,
       );
@@ -108,6 +96,65 @@ class _AdditionPageState extends State<AdditionPage> {
     setState(() => _isListening = false);
     _speech.stop();
   }
+
+  // void _checkAnswer(int userAnswer) async {
+  //   _processingAnswer = true;
+  //   _stopListening();
+
+  //   if (userAnswer == _currentQuestion?.answer) {
+  //     _speak("Correct!");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   } else {
+  //     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+  //     _generateNewQuestion(shouldSpeak: false);
+  //   }
+  // }
+
+//   void _checkAnswer(int userAnswer) async {
+//   _processingAnswer = true;
+//   _stopListening();
+//
+//   if (userAnswer == _currentQuestion?.answer) {
+//     _correctAnswersCount++;
+//
+//     // Array of motivational messages
+//     List<String> motivationalMessages = [
+//       "Fantastic! You’re really good at this!",
+//       "Amazing! You’re on fire, keep it up!",
+//       "Great job! You’re making excellent progress!",
+//       "Awesome! You’re doing so well!",
+//       "Brilliant! Keep going, you're amazing!"
+//     ];
+//
+//     _speak("Correct!");
+//
+//     // Play special speech after every 3 correct answers
+//     if (_correctAnswersCount % 3 == 0) {
+//       // Select a random motivational message
+//       _speak(motivationalMessages[
+//           Random().nextInt(motivationalMessages.length)]);
+//     }
+//
+//     _generateNewQuestion(shouldSpeak: false);
+//   } else {
+//     _correctAnswersCount = 0;
+//     _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+//
+//     // Array of encouraging quotes
+//     List<String> encouragingQuotes = [
+//       "Don't worry, mistakes are an essential part of learning!",
+//       "Keep trying, you'll get it next time!",
+//       "Every mistake brings you closer to success!",
+//       "Don't give up, you're doing great!",
+//       "Remember, practice makes perfect!"
+//     ];
+//
+//     // Select a random encouraging quote
+//     _speak(encouragingQuotes[Random().nextInt(encouragingQuotes.length)]);
+//
+//     _generateNewQuestion(shouldSpeak: false);
+//   }
+// }
 
   int _correctCount = 0;
   int wrongQuoteIndex = 0;
@@ -134,12 +181,39 @@ class _AdditionPageState extends State<AdditionPage> {
 
       _generateNewQuestion(shouldSpeak: false);
     } else {
+      //     _wrongCount++;
+      //
+      //     String wrongSentence = "Wrong, the right answer is ${_currentQuestion?.answer}.";
+      //
+      //     if (_wrongCount % 3 == 0) {
+      //       // Array of encouraging quotes for wrong answers
+      //       List<String> encouragingQuotes = [
+      //         "Oops! Try the next one.",
+      //         "Keep going.",
+      //         // "Every mistake brings you closer to success!",
+      //         // "Don't give up, you're doing great!",
+      //         // "Remember, practice makes perfect!",
+      //       ];
+      //
+      //       // Append the encouraging quote to the wrong sentence
+      //       wrongSentence += " " + encouragingQuotes[Random().nextInt(encouragingQuotes.length)];
+      //     }
+      //
+      //     _speak(wrongSentence);
+      //
+      //     _generateNewQuestion(shouldSpeak: false);
+      //   }
+      // }
+      // _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
+
+      // Array of short quotes for wrong answers
       List<String> wrongQuotes = [
         "Wrong, the right answer is ${_currentQuestion?.answer}. Keep going!",
         "Wrong, the right answer is ${_currentQuestion?.answer}. Stay focused. You can do it!",
         "Wrong, the right answer is ${_currentQuestion?.answer}. Try the next one!",
       ];
 
+      // _speak("Wrong, the right answer is ${_currentQuestion?.answer}.");
       _speak(wrongQuotes[wrongQuoteIndex]);
       wrongQuoteIndex = (wrongQuoteIndex + 1) % wrongQuotes.length;
       _generateNewQuestion(shouldSpeak: false);
@@ -147,10 +221,17 @@ class _AdditionPageState extends State<AdditionPage> {
   }
 
   void _speak(String text) async {
-    await _applySpeechRate(); // Ensure speech rate is set before speaking
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
     await _flutterTts.speak(text);
+  }
+
+  void _navigateToHome() {
+    // Implement navigation to Home Page
+  }
+
+  void _navigateToFeedback() {
+    // Implement navigation to Feedback Page
   }
 
   @override
@@ -172,29 +253,32 @@ class _AdditionPageState extends State<AdditionPage> {
                 color: Colors.black,
                 child: Center(
                   child: Text(
-                    _currentQuestion?.toString() ?? "Tap to hear the question...",
-                    style: const TextStyle(fontSize: 30, color: Colors.white),
+                    _currentQuestion?.toString() ??
+                        "Tap to hear the question...",
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white), // White text for contrast
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _repeatInstruction,
+                child: Text(
+                  'Repeat Instruction',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Repeat Instruction',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -202,17 +286,17 @@ class _AdditionPageState extends State<AdditionPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _isListening ? _stopListening : _startListening,
+                child: Text(
+                  _isListening ? 'Listening' : 'Answer',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: Text(
-                  _isListening ? 'Listening' : 'Answer',
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -225,17 +309,17 @@ class _AdditionPageState extends State<AdditionPage> {
                       MaterialPageRoute(
                           builder: (context) => const HomePage()));
                 },
+                child: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Home',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -248,17 +332,17 @@ class _AdditionPageState extends State<AdditionPage> {
                       MaterialPageRoute(
                           builder: (context) => const FeedbackPage()));
                 },
+                child: Text(
+                  'Feedback',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  side: const BorderSide(width: 2, color: Colors.white),
-                  minimumSize: const Size(double.infinity, 50),
+                  side: BorderSide(width: 2, color: Colors.white),
+                  minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text(
-                  'Feedback',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
