@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mathsense/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   bool _isSpeaking = true; // Flag to disable button while speaking
   String _wordsSpoken = "";
   bool _aboutPageOpened = false; // Flag to prevent multiple navigations
+  double _speechRate = 0.5; // Default value
 
   @override
   void initState() {
@@ -44,9 +46,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _speakInitialMessage() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Check if speechRate exists in SharedPreferences, else keep default (0.5)
+    _speechRate = prefs.getDouble('speechRate') ?? 0.5;
+
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
-    await _flutterTts.setSpeechRate(0.5);
+    await _flutterTts.setSpeechRate(_speechRate); // Set speech rate
+
     await _flutterTts
         .speak("Tap on the screen and say what skill you want to practice "
             "like addition, subtraction, multiplication, or division.");
@@ -119,20 +127,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         // title: Text("Home Page"),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(
-        //       Icons.settings,
-        //       color: Colors.black,
-        //     ),
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(builder: (context) => SettingsPage()),
-        //       );
-        //     },
-        //   ),
-        // ],
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         top: true,
